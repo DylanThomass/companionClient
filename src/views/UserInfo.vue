@@ -45,6 +45,18 @@
                   </div>
                 </template>
               </van-image>
+              <!-- 标签角标 -->
+              <div
+                v-if="userTags[0]"
+                class="absolute -bottom-2 right-0 px-2 py-1 bg-white rounded-full shadow-lg transform -rotate-12 cursor-pointer group"
+                @click="handleManageTags"
+              >
+                <span
+                  class="text-xs text-brand-500 group-hover:text-brand-600 transition-colors duration-300"
+                >
+                  #{{ userTags[0] }}
+                </span>
+              </div>
               <!-- 头像编辑蒙层 -->
               <div
                 class="absolute inset-0 rounded-full bg-black/0 hover:bg-black/20 flex items-center justify-center cursor-pointer transition-all duration-300 group"
@@ -111,68 +123,91 @@
             </div>
           </div>
 
-          <!-- 功能按钮组 -->
-          <div class="mt-8 grid grid-cols-3 gap-3">
+          <!-- 用户数据统计 -->
+          <div
+            class="mt-4 flex items-center justify-between border-t border-b border-surface-100 py-4"
+          >
             <div
-              class="flex flex-col items-center justify-center py-3 px-2 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
-              @click="handleSignIn"
+              class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
             >
-              <van-icon name="sign" class="text-2xl text-brand-500 mb-1" />
-              <span class="text-surface-600 text-sm">
-                {{ userStats.todaySignIn ? "已签到" : "每日签到" }}
-              </span>
+              <div class="text-lg font-semibold text-brand-500">
+                ¥{{ userStats.balance }}
+              </div>
+              <div
+                class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
+              >
+                余额
+              </div>
             </div>
             <div
-              class="flex flex-col items-center justify-center py-3 px-2 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
-              @click="handleInvite"
+              class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
             >
-              <van-icon name="friends-o" class="text-2xl text-brand-500 mb-1" />
-              <span class="text-surface-600 text-sm">邀请好友</span>
+              <div class="text-lg font-semibold text-brand-500">
+                {{ userStats.coupons }}
+              </div>
+              <div
+                class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
+              >
+                卡券
+              </div>
             </div>
             <div
-              class="flex flex-col items-center justify-center py-3 px-2 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
-              @click="handleBecomeSeller"
+              class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
             >
-              <van-icon name="shop-o" class="text-2xl text-brand-500 mb-1" />
-              <span class="text-surface-600 text-sm">成为店员</span>
+              <div class="text-lg font-semibold text-brand-500">
+                {{ userStats.signInDays }}
+              </div>
+              <div
+                class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
+              >
+                签到
+              </div>
+            </div>
+            <div class="flex-1 text-center group cursor-pointer">
+              <div class="text-lg font-semibold text-brand-500">
+                {{ userStats.inviteCount }}
+              </div>
+              <div
+                class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
+              >
+                邀请
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 用户数据统计 -->
-      <div class="mt-4 grid grid-cols-4 gap-2">
+      <!-- 功能按钮组 -->
+      <div class="mt-6 grid grid-cols-3 gap-3">
+        <!-- 签到按钮 -->
         <div
-          class="bg-surface-50 rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300"
+          class="bg-white rounded-xl p-4 shadow-lg text-center cursor-pointer hover:shadow-xl transition-shadow duration-300"
+          @click="handleSignIn"
         >
-          <div class="text-lg font-semibold text-brand-500">
-            ¥{{ userStats.balance }}
+          <van-icon name="sign" class="text-2xl text-brand-500" />
+          <div class="mt-2 text-sm text-surface-600 whitespace-nowrap">
+            {{ userStats.todaySignIn ? "已签到" : "每日签到" }}
           </div>
-          <div class="text-xs text-surface-500">余额</div>
         </div>
+        <!-- 成为店员 -->
         <div
-          class="bg-surface-50 rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300"
+          class="bg-white rounded-xl p-4 shadow-lg text-center cursor-pointer hover:shadow-xl transition-shadow duration-300"
+          @click="handleBecomeSeller"
         >
-          <div class="text-lg font-semibold text-brand-500">
-            {{ userStats.coupons }}
+          <van-icon name="shop-o" class="text-2xl text-brand-500" />
+          <div class="mt-2 text-sm text-surface-600 whitespace-nowrap">
+            成为店员
           </div>
-          <div class="text-xs text-surface-500">卡券</div>
         </div>
+        <!-- 标签管理 -->
         <div
-          class="bg-surface-50 rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300"
+          class="bg-white rounded-xl p-4 shadow-lg text-center cursor-pointer hover:shadow-xl transition-shadow duration-300"
+          @click="handleManageTags"
         >
-          <div class="text-lg font-semibold text-brand-500">
-            {{ userStats.signInDays }}
+          <van-icon name="label-o" class="text-2xl text-brand-500" />
+          <div class="mt-2 text-sm text-surface-600 whitespace-nowrap">
+            标签管理
           </div>
-          <div class="text-xs text-surface-500">签到</div>
-        </div>
-        <div
-          class="bg-surface-50 rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300"
-        >
-          <div class="text-lg font-semibold text-brand-500">
-            {{ userStats.inviteCount }}
-          </div>
-          <div class="text-xs text-surface-500">邀请</div>
         </div>
       </div>
 
@@ -232,6 +267,14 @@
           即将推出
         </div>
         <div class="grid grid-cols-2 gap-3">
+          <!-- 邀请好友 -->
+          <div
+            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+          >
+            <van-icon name="friends-o" class="text-xl text-surface-400" />
+            <span class="ml-2 text-surface-500 text-sm">邀请好友</span>
+            <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
+          </div>
           <!-- AI角色管理 -->
           <div
             class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
@@ -264,26 +307,6 @@
             <span class="ml-2 text-surface-500 text-sm">积分商城</span>
             <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
           </div>
-        </div>
-      </div>
-
-      <!-- 用户标签 -->
-      <div class="mt-6 bg-white rounded-2xl p-6 shadow-lg">
-        <div class="text-sm text-surface-500 mb-3">个性标签</div>
-        <div class="flex flex-wrap gap-3">
-          <span
-            v-for="tag in userTags"
-            :key="tag"
-            class="px-4 py-2 bg-surface-50 text-surface-600 rounded-full text-sm hover:bg-brand-50 hover:text-brand-500 cursor-pointer transition-colors duration-300"
-          >
-            {{ tag }}
-          </span>
-          <span
-            class="px-4 py-2 border border-dashed border-surface-200 text-surface-400 rounded-full text-sm hover:border-brand-300 hover:text-brand-500 cursor-pointer transition-colors duration-300"
-            @click="handleAddTag"
-          >
-            + 添加标签
-          </span>
         </div>
       </div>
     </div>
@@ -364,12 +387,6 @@ const handleSignIn = () => {
   });
 };
 
-// 邀请好友
-const handleInvite = () => {
-  // TODO: 调用分享接口
-  showToast("邀请功能开发中");
-};
-
 // 成为店员
 const handleBecomeSeller = () => {
   showDialog({
@@ -385,6 +402,45 @@ const handleBecomeSeller = () => {
         message: "申请已提交",
         icon: "success",
       });
+    })
+    .catch(() => {});
+};
+
+// 标签管理
+const handleManageTags = () => {
+  showDialog({
+    title: "个性标签",
+    message: h("div", { class: "py-4" }, [
+      h(
+        "div",
+        { class: "flex flex-wrap gap-2" },
+        userTags.value.map((tag) =>
+          h(
+            "span",
+            {
+              class:
+                "px-3 py-1.5 bg-surface-50 text-surface-600 rounded-full text-sm",
+            },
+            tag
+          )
+        )
+      ),
+      h(
+        "div",
+        {
+          class: "mt-4 text-sm text-surface-500",
+        },
+        "选择合适的标签，让别人更了解你"
+      ),
+    ]),
+    showCancelButton: true,
+    confirmButtonText: "编辑标签",
+    confirmButtonColor: "#14b8a6",
+    cancelButtonText: "关闭",
+  })
+    .then(() => {
+      // TODO: 跳转到标签编辑页面
+      showToast("标签编辑功能开发中");
     })
     .catch(() => {});
 };
@@ -455,12 +511,6 @@ const handleClearCache = () => {
       });
     })
     .catch(() => {});
-};
-
-// 添加标签
-const handleAddTag = () => {
-  // TODO: 实现添加标签功能
-  showToast("添加标签功能开发中");
 };
 </script>
 

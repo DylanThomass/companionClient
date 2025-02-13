@@ -7,11 +7,11 @@
         <!-- 装饰背景 -->
         <div class="absolute -top-6 -left-6 -right-6 h-48">
           <div
-            class="absolute inset-0 bg-gradient-to-br from-brand-400 via-brand-500 to-brand-600"
+            class="absolute inset-0 bg-gradient-to-br from-teal-400 via-cyan-500 to-brand-500"
           >
             <!-- 添加一个柔和的渐变遮罩 -->
             <div
-              class="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent"
+              class="absolute inset-0 bg-gradient-to-t from-white/20 via-white/5 to-transparent"
             ></div>
             <!-- 底部过渡效果 -->
             <div
@@ -183,18 +183,18 @@
           <div class="text-sm text-surface-500 mb-3">订单与收藏</div>
           <div class="space-y-2">
             <div
-              class="flex items-center p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              class="flex items-center p-3 bg-feature-order-light/20 rounded-xl cursor-pointer hover:bg-feature-order-light/30 transition-colors duration-300"
               @click="handleOrders"
             >
-              <van-icon name="orders-o" class="text-xl text-brand-500" />
+              <van-icon name="orders-o" class="text-xl text-feature-order" />
               <span class="ml-2 text-surface-600 text-sm">订单管理</span>
               <van-icon name="arrow" class="ml-auto text-surface-400" />
             </div>
             <div
-              class="flex items-center p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              class="flex items-center p-3 bg-feature-favorite-light/20 rounded-xl cursor-pointer hover:bg-feature-favorite-light/30 transition-colors duration-300"
               @click="handleFavorites"
             >
-              <van-icon name="like-o" class="text-xl text-brand-500" />
+              <van-icon name="like-o" class="text-xl text-feature-favorite" />
               <span class="ml-2 text-surface-600 text-sm">收藏店员</span>
               <van-icon name="arrow" class="ml-auto text-surface-400" />
             </div>
@@ -206,18 +206,18 @@
           <div class="text-sm text-surface-500 mb-3">帮助与支持</div>
           <div class="space-y-2">
             <div
-              class="flex items-center p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              class="flex items-center p-3 bg-feature-service-light/20 rounded-xl cursor-pointer hover:bg-feature-service-light/30 transition-colors duration-300"
               @click="handleCustomerService"
             >
-              <van-icon name="service-o" class="text-xl text-brand-500" />
+              <van-icon name="service-o" class="text-xl text-feature-service" />
               <span class="ml-2 text-surface-600 text-sm">咨询客服</span>
               <van-icon name="arrow" class="ml-auto text-surface-400" />
             </div>
             <div
-              class="flex items-center p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              class="flex items-center p-3 bg-feature-system-light/20 rounded-xl cursor-pointer hover:bg-feature-system-light/30 transition-colors duration-300"
               @click="handleClearCache"
             >
-              <van-icon name="delete-o" class="text-xl text-brand-500" />
+              <van-icon name="delete-o" class="text-xl text-feature-system" />
               <span class="ml-2 text-surface-600 text-sm">清理缓存</span>
               <van-icon name="arrow" class="ml-auto text-surface-400" />
             </div>
@@ -376,7 +376,7 @@ const handleBecomeSeller = () => {
     title: "成为店员",
     message: "成为店员后可以管理店铺、处理订单等",
     confirmButtonText: "立即申请",
-    confirmButtonColor: "#f05252",
+    confirmButtonColor: "#14b8a6",
     cancelButtonText: "暂不考虑",
   })
     .then(() => {
@@ -429,7 +429,7 @@ const handleCustomerService = () => {
     title: "联系客服",
     message: "工作时间：周一至周日 9:00-21:00",
     confirmButtonText: "拨打电话",
-    confirmButtonColor: "#f05252",
+    confirmButtonColor: "#14b8a6",
     cancelButtonText: "取消",
   })
     .then(() => {

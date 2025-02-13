@@ -1,40 +1,77 @@
 <template>
-  <div class="user-info">
+  <div class="min-h-screen bg-surface-50 p-6">
     <!-- 头部信息卡片 -->
-    <van-cell-group inset class="user-card">
-      <van-cell center title="头像" class="avatar-cell">
-        <template #value>
+    <div class="bg-white rounded-design shadow-sm overflow-hidden">
+      <!-- 头像和昵称区域 -->
+      <div class="p-8 bg-gradient-to-br from-brand-300 to-brand-400">
+        <div class="flex items-center space-x-6">
           <van-image
             round
-            width="60"
-            height="60"
+            width="88"
+            height="88"
             :src="userStore.userInfo?.headimgurl"
             :alt="userStore.userInfo?.nickname"
+            class="flex-shrink-0 border-4 border-white/50 shadow-lg"
           >
             <template #error>
-              <van-icon name="user-circle-o" size="60" />
+              <div
+                class="w-[88px] h-[88px] rounded-full bg-white/20 flex items-center justify-center"
+              >
+                <van-icon name="user-circle-o" size="44" class="text-white" />
+              </div>
             </template>
           </van-image>
-        </template>
-      </van-cell>
-      <van-cell title="昵称" :value="userStore.userInfo?.nickname" />
-      <van-cell title="性别" :value="formatGender(userStore.userInfo?.sex)" />
-      <van-cell title="地区" :value="formatLocation()" />
-      <van-cell title="OpenID" :value="formatOpenId()" />
-    </van-cell-group>
+
+          <div class="flex-1">
+            <h2 class="text-2xl font-semibold text-white">
+              {{ userStore.userInfo?.nickname || "亲爱的用户" }}
+            </h2>
+            <p class="mt-2 text-white/80">
+              {{ formatLocation() }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 用户信息列表 -->
+      <div class="divide-y divide-surface-100">
+        <van-cell
+          title="性别"
+          :value="formatGender(userStore.userInfo?.sex)"
+          class="text-surface-600 h-16"
+        />
+        <van-cell
+          title="地区"
+          :value="formatLocation()"
+          class="text-surface-600 h-16"
+        />
+        <van-cell
+          title="ID"
+          :value="formatOpenId()"
+          class="text-surface-600 h-16"
+        />
+      </div>
+    </div>
 
     <!-- 操作按钮组 -->
-    <div class="action-buttons">
-      <van-button type="primary" block @click="handleLogout"
-        >退出登录</van-button
-      >
+    <div class="mt-8">
+      <van-button block class="btn-secondary" @click="handleLogout">
+        退出登录
+      </van-button>
     </div>
 
     <!-- 调试信息 -->
-    <div v-if="isDev" class="debug-info">
-      <van-collapse v-model="activeNames">
+    <div v-if="isDev" class="mt-8">
+      <van-collapse
+        v-model="activeNames"
+        class="rounded-design overflow-hidden"
+      >
         <van-collapse-item title="调试信息" name="1">
-          <pre>{{ JSON.stringify(userStore.userInfo, null, 2) }}</pre>
+          <pre
+            class="text-assist bg-base-bg p-4 rounded-design overflow-x-auto font-mono text-gray-600"
+          >
+            {{ JSON.stringify(userStore.userInfo, null, 2) }}
+          </pre>
         </van-collapse-item>
       </van-collapse>
     </div>
@@ -95,43 +132,3 @@ const handleLogout = () => {
   });
 };
 </script>
-
-<style scoped>
-.user-info {
-  padding: 16px;
-  min-height: 100vh;
-  background-color: #f7f8fa;
-}
-
-.user-card {
-  margin-bottom: 20px;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #fff;
-}
-
-.avatar-cell :deep(.van-cell__value) {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.action-buttons {
-  margin: 24px 0;
-}
-
-.debug-info {
-  margin-top: 24px;
-}
-
-.debug-info pre {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  font-size: 12px;
-  line-height: 1.5;
-  padding: 8px;
-  margin: 0;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-}
-</style>

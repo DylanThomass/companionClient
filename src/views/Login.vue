@@ -1,110 +1,114 @@
 <template>
-  <div class="login-page">
+  <div class="min-h-screen bg-surface-50 px-6 py-12">
     <!-- 顶部标题 -->
-    <div class="px-4 py-8 text-center">
-      <h1 class="text-2xl font-bold text-gray-800">{{ title }}</h1>
-      <p class="mt-2 text-gray-600">欢迎回来，请登录您的账号</p>
+    <div class="text-center mb-16">
+      <h1 class="text-3xl font-semibold text-surface-800">Companion</h1>
+      <p class="mt-3 text-surface-500">让温暖永远相伴</p>
     </div>
 
     <!-- 登录表单 -->
-    <van-form @submit="onSubmit" class="px-4">
-      <van-cell-group inset>
-        <!-- 用户名输入框 -->
+    <van-form @submit="onSubmit" class="space-y-8">
+      <!-- 输入框组 -->
+      <div class="space-y-4">
         <van-field
           v-model="formData.username"
           name="username"
-          label="用户名"
           placeholder="请输入用户名"
           :rules="[{ required: true, message: '请填写用户名' }]"
           :disabled="loading"
+          class="h-14 bg-surface-100 rounded-design-sm overflow-hidden"
         >
           <template #left-icon>
-            <van-icon name="user-o" />
+            <van-icon name="user-o" class="text-surface-400" />
           </template>
         </van-field>
 
-        <!-- 密码输入框 -->
         <van-field
           v-model="formData.password"
           type="password"
           name="password"
-          label="密码"
           placeholder="请输入密码"
           :rules="[{ required: true, message: '请填写密码' }]"
           :disabled="loading"
+          class="h-14 bg-surface-100 rounded-design-sm overflow-hidden"
         >
           <template #left-icon>
-            <van-icon name="lock" />
+            <van-icon name="lock" class="text-surface-400" />
           </template>
         </van-field>
-      </van-cell-group>
+      </div>
 
-      <!-- 提交按钮 -->
-      <div class="mt-6">
+      <!-- 按钮组 -->
+      <div class="space-y-4 mt-8">
+        <!-- 账号登录按钮 -->
         <van-button
-          round
           block
-          type="primary"
-          native-type="submit"
           :loading="loading"
           loading-text="登录中..."
+          class="btn-primary"
+          native-type="submit"
         >
-          登录
+          <span class="!text-white !font-medium !text-lg">账号登录</span>
         </van-button>
-      </div>
 
-      <!-- 其他操作 -->
-      <div class="mt-4 flex justify-between px-2">
-        <span
-          class="text-sm text-gray-600 cursor-pointer"
-          @click="handleForgetPassword"
-        >
-          忘记密码
-        </span>
-        <span
-          class="text-sm text-gray-600 cursor-pointer"
-          @click="handleRegister"
-        >
-          注册账号
-        </span>
-      </div>
-
-      <!-- 在登录按钮下方添加 -->
-      <div class="mt-4">
-        <van-divider>其他登录方式</van-divider>
-        <div class="flex justify-center">
-          <van-button
-            round
-            icon="wechat"
-            color="#07c160"
-            class="w-12 h-12"
-            @click="handleWxLogin"
-          />
-        </div>
+        <!-- 微信登录按钮 -->
+        <van-button block class="btn-wechat" @click="handleWxLogin">
+          <template #icon>
+            <van-icon name="wechat" class="!text-white !text-xl !mr-2" />
+          </template>
+          <span class="!text-white !font-medium !text-lg">微信登录</span>
+        </van-button>
       </div>
     </van-form>
 
-    <!-- 底部说明 -->
-    <div class="mt-8 px-4 text-center text-gray-500 text-sm">
-      登录即表示同意
-      <van-button type="text" size="mini" class="!p-0" @click="handleViewTerms">
+    <!-- 底部链接 -->
+    <div class="mt-8 flex justify-between px-2">
+      <span
+        class="text-surface-500 hover:text-surface-600 cursor-pointer transition-colors"
+        @click="handleForgetPassword"
+      >
+        忘记密码
+      </span>
+      <span
+        class="text-brand-400 hover:text-brand-500 cursor-pointer transition-colors"
+        @click="handleRegister"
+      >
+        注册账号
+      </span>
+    </div>
+
+    <!-- 服务条款 -->
+    <div class="mt-12 text-center text-sm text-surface-500">
+      登录即代表您同意
+      <span
+        class="text-brand-400 hover:text-brand-500 cursor-pointer transition-colors"
+        @click="handleViewTerms"
+      >
         服务条款
-      </van-button>
+      </span>
       和
-      <van-button
-        type="text"
-        size="mini"
-        class="!p-0"
+      <span
+        class="text-brand-400 hover:text-brand-500 cursor-pointer transition-colors"
         @click="handleViewPrivacy"
       >
         隐私政策
+      </span>
+    </div>
+
+    <!-- 开发环境下显示清理缓存按钮 -->
+    <div v-if="isDev" class="mt-8 text-center">
+      <van-button
+        class="btn-secondary !h-10 !text-base"
+        @click="handleClearCache"
+      >
+        清理缓存
       </van-button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { showToast, showDialog } from "vant";
 import { useUserStore } from "@/store/modules/user";
@@ -125,6 +129,48 @@ const formData = ref({
 
 // 加载状态
 const loading = ref(false);
+
+// 是否为开发环境
+const isDev = computed(() => process.env.NODE_ENV === "development");
+
+// 清理缓存
+const handleClearCache = () => {
+  try {
+    // 清理 localStorage
+    localStorage.clear();
+    // 清理 sessionStorage
+    sessionStorage.clear();
+    // 清理 userStore
+    userStore.logout();
+
+    showToast({
+      type: "success",
+      message: "缓存已清理",
+      onClose: () => {
+        // 刷新页面
+        window.location.reload();
+      },
+    });
+  } catch (error) {
+    console.error("清理缓存失败：", error);
+    showToast({
+      type: "fail",
+      message: "清理缓存失败",
+    });
+  }
+};
+
+// 页面加载时检查缓存状态
+onMounted(() => {
+  if (isDev) {
+    const cacheInfo = {
+      localStorage: { ...localStorage },
+      token: localStorage.getItem("token"),
+      userInfo: userStore.userInfo,
+    };
+    console.log("当前缓存状态：", cacheInfo);
+  }
+});
 
 // 登录提交
 const onSubmit = async (values) => {
@@ -177,7 +223,6 @@ const handleViewPrivacy = () => {
 const handleWxLogin = () => {
   // 构建微信授权 URL
   const appid = process.env.VUE_APP_WX_APPID;
-  // 确保重定向到 wx-auth 路由
   const redirectUri = encodeURIComponent(
     `${process.env.VUE_APP_WX_REDIRECT_URI}/wx-auth`
   );
@@ -186,37 +231,17 @@ const handleWxLogin = () => {
 
   const wxAuthUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&state=${state}#wechat_redirect`;
 
-  console.log("微信授权 URL:", {
-    appid,
-    redirectUri: decodeURIComponent(redirectUri),
-    scope,
-    state: decodeURIComponent(state),
-    fullUrl: wxAuthUrl,
-  });
+  // 调试信息
+  if (isDev) {
+    console.log("微信登录配置：", {
+      appid,
+      redirectUri: decodeURIComponent(redirectUri),
+      scope,
+      state: decodeURIComponent(state),
+    });
+    console.log("完整授权URL：", wxAuthUrl);
+  }
 
   window.location.href = wxAuthUrl;
 };
 </script>
-
-<style scoped>
-.login-page {
-  min-height: 100vh;
-  background-color: #fff;
-  padding-bottom: 40px;
-}
-
-:deep(.van-field__left-icon) {
-  margin-right: 6px;
-}
-
-:deep(.van-button--text) {
-  color: var(--van-primary-color);
-  height: auto;
-  line-height: normal;
-  padding: 0;
-}
-
-:deep(.van-button--text)::before {
-  display: none;
-}
-</style>

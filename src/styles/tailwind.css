@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 自定义工具类 */
+@layer components {
+  /* 基础按钮样式 */
+  .btn-base {
+    @apply !h-14 !rounded-design !border-none !shadow-sm !transition-all !duration-200 !font-medium !text-lg;
+  }
+
+  .btn-primary {
+    @apply btn-base !bg-surface-800 hover:!bg-surface-900 !text-white;
+  }
+
+  .btn-wechat {
+    @apply btn-base !bg-[#07C160] hover:!bg-[#06AE56] !text-white;
+  }
+
+  .btn-secondary {
+    @apply btn-base !bg-surface-100 hover:!bg-surface-200 !text-surface-600;
+  }
+
+  /* 覆盖 Vant 按钮默认样式 */
+  .van-button {
+    &--default {
+      background-color: inherit !important;
+    }
+
+    &__content {
+      color: inherit !important;
+    }
+  }
+
+  .page-container {
+    @apply min-h-screen bg-gray-100 p-4;
+  }
+  .card {
+    @apply bg-white rounded-lg shadow-sm p-4 mb-4;
+  }
+  .text-shadow {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+}

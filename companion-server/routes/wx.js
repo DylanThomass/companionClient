@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const crypto = require("crypto");
+const config = require("../config");
 
 // 缓存微信接口调用凭证
 const wxCache = {
@@ -101,62 +102,41 @@ router.get("/config", async (req, res) => {
   }
 });
 
-// 微信登录接口
-router.post("/login", async (req, res) => {
+// 微信授权登录
+router.post("/auth", async (req, res) => {
   try {
     const { code } = req.body;
 
+    if (!code) {
+      return res.status(400).json({ message: "缺少授权码" });
+    }
+
     // 1. 通过 code 获取 access_token
-    const tokenResponse = await axios.get(
-      "https://api.weixin.qq.com/sns/oauth2/access_token",
-      {
-        params: {
-          appid: process.env.WX_APPID,
-          secret: process.env.WX_APP_SECRET,
-          code: code,
-          grant_type: "authorization_code",
-        },
-      }
-    );
+    const tokenUrl = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${config.wx.appId}&secret=${config.wx.appSecret}&code=${code}&grant_type=authorization_code`;
+    const tokenRes = await axios.get(tokenUrl);
 
-    const { access_token, openid } = tokenResponse.data;
+    if (tokenRes.data.errcode) {
+      throw new Error(tokenRes.data.errmsg);
+    }
 
-    // 2. 通过 access_token 和 openid 获取用户信息
-    const userInfoResponse = await axios.get(
-      "https://api.weixin.qq.com/sns/userinfo",
-      {
-        params: {
-          access_token,
-          openid,
-          lang: "zh_CN",
-        },
-      }
-    );
+    const { access_token, openid } = tokenRes.data;
+
+    // 2. 获取用户信息
+    const userInfoUrl = `https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${openid}&lang=zh_CN`;
+    const userInfoRes = await axios.get(userInfoUrl);
+
+    if (userInfoRes.data.errcode) {
+      throw new Error(userInfoRes.data.errmsg);
+    }
 
     // 3. 返回用户信息和 token
     res.json({
-      code: 0,
-      data: {
-        token: "some-token", // TODO: 使用 JWT 生成真实的 token
-        userInfo: {
-          openid: userInfoResponse.data.openid,
-          nickname: userInfoResponse.data.nickname,
-          sex: userInfoResponse.data.sex,
-          province: userInfoResponse.data.province,
-          city: userInfoResponse.data.city,
-          country: userInfoResponse.data.country,
-          headimgurl: userInfoResponse.data.headimgurl,
-          privilege: userInfoResponse.data.privilege,
-          unionid: userInfoResponse.data.unionid,
-        },
-      },
+      token: generateToken(openid), // 生成 JWT token
+      userInfo: userInfoRes.data,
     });
   } catch (error) {
-    console.error("微信登录失败:", error.response?.data || error);
-    res.status(500).json({
-      code: -1,
-      message: "登录失败",
-    });
+    console.error("微信授权失败:", error);
+    res.status(500).json({ message: error.message || "授权失败" });
   }
 });
 

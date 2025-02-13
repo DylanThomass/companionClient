@@ -30,3 +30,12 @@ export function login(data) {
     data,
   });
 }
+
+// 微信授权登录
+export function wxAuth(data) {
+  return request({
+    url: "/wx/auth",
+    method: "post",
+    data,
+  });
+}

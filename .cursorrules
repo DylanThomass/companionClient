@@ -34,9 +34,9 @@ const additionalInstructions = `
 `;
 
 // Vant 4 和 UnoCSS 规则
-const vantAndUnoCSSRules = `
+const vantAndTailwindCSSRules = `
 1. 使用 Vant 4 组件库（例如 Button, Cell, Dialog）。
-2. 配置 UnoCSS，确保按需引入样式。
+2. 配置 TailwindCSS，确保按需引入样式。
 3. 遵循原子化 CSS 设计原则，避免重复样式编写。
 4. 使用 Vant 组件的提供样式名进行类名配置。
 5. 确保组件间样式隔离，避免样式污染。
@@ -50,3 +50,52 @@ const wechatH5Rules = `
    - 确保页面响应流畅，避免长时间加载。
    - 设置 meta 标签，优化视口。
 `;
+
+// 整体样式风格设计
+const designGuide = `  
+// ========== 设计风格 ========== //  
+{  
+  style: {  
+    principle: "治愈系·低信息密度·情绪可视化",  
+    temperature: "27°暖色温（hsl(42,15%,98%)背景基准）",  
+    borderRadius: "8px统一圆角系统",  
+    animation: "所有交互组件0.2s ease-in-out缓动"  
+  },  
+
+  // ========== 核心配色 ========== //  
+  colorPalette: {  
+    base: [  
+      { role: "背景", value: "hsl(42,15%,98%)", usage: "卡片/页面底色" },  
+      { role: "主色", value: "hsl(18,82%,68%)", usage: "按钮/重要操作" },  
+      { role: "辅助色", value: "hsl(210,25%,85%)", usage: "图标/次要信息" }  
+    ],  
+    emotionGradients: {  
+      joy: "linear-gradient(145deg, hsl(38,89%,70%), hsl(355,70%,65%))",  
+      calm: "linear-gradient(145deg, hsl(198,40%,85%), hsl(210,30%,90%))",  
+      low: "linear-gradient(145deg, hsl(240,15%,65%), hsl(260,10%,75%))"  
+    }  
+  },  
+
+  // ========== 微信适配规范 ========== //  
+  wechatSpec: {  
+    layout: {  
+      viewportHeight: "首屏内容≤600px",  
+      safeArea: "底部88px操作区（含微信导航条补偿）"  
+    },  
+    typography: {  
+      scale: ["0.75rem(辅助)", "1rem(正文)", "1.25rem(标题)", "1.5rem(大标题)"]  
+    }  
+  },  
+
+  // ========== 性能优化 ========== //  
+  performance: {  
+    imageLoading: [  
+      "SVG优先（体积减少60%）",  
+      "三阶段加载：色块轮廓 → 低精度图 → 高清图"  
+    ],  
+    wechatHacks: [  
+      "避免position: fixed",  
+      "点击事件+300ms延迟补偿"  
+    ]  
+  }  
+}`;

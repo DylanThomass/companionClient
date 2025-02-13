@@ -20,10 +20,13 @@ import {
   CellGroup,
   Cell,
   Loading,
+  Toast,
+  Dialog,
 } from "vant";
 
 // 引入 Vant 样式
 import "vant/lib/index.css";
+import "./styles/tailwind.css";
 
 // 创建应用实例
 const app = createApp(App);
@@ -38,7 +41,9 @@ app
   .use(Field)
   .use(CellGroup)
   .use(Cell)
-  .use(Loading);
+  .use(Loading)
+  .use(Toast)
+  .use(Dialog);
 
 // 使用 Pinia 和路由
 app.use(createPinia());

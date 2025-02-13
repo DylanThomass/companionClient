@@ -1,44 +1,29 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
-import { wxLogin } from "@/api/user";
+import { wxLogin } from "@/api/wx";
 
-export const useUserStore = defineStore("user", () => {
-  // 从 localStorage 初始化 token 和用户信息
-  const token = ref(localStorage.getItem("token") || "");
-  const userInfo = ref(
-    localStorage.getItem("userInfo")
-      ? JSON.parse(localStorage.getItem("userInfo"))
-      : null
-  );
+export const useUserStore = defineStore("user", {
+  state: () => ({
+    token: "",
+    userInfo: null,
+  }),
 
-  async function login(code) {
-    try {
+  actions: {
+    async login(code) {
       const data = await wxLogin(code);
-      token.value = data.token;
-      userInfo.value = data.userInfo;
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userInfo", JSON.stringify(data.userInfo));
+      this.token = data.token;
+      this.userInfo = data.userInfo;
       return data;
-    } catch (error) {
-      token.value = "";
-      userInfo.value = null;
-      localStorage.removeItem("token");
-      localStorage.removeItem("userInfo");
-      throw error;
-    }
-  }
+    },
 
-  function logout() {
-    token.value = "";
-    userInfo.value = null;
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-  }
+    logout() {
+      this.token = "";
+      this.userInfo = null;
+    },
+  },
 
-  return {
-    token,
-    userInfo,
-    login,
-    logout,
-  };
+  getters: {
+    isLoggedIn: (state) => !!state.token && !!state.userInfo,
+  },
+
+  persist: true,
 });

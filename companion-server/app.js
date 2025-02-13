@@ -7,19 +7,39 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 
-dotenv.config();
+// 首先加载环境变量
+const result = dotenv.config();
+
+if (result.error) {
+  console.error("加载 .env 文件失败:", result.error);
+  process.exit(1);
+}
+
+// 打印环境变量检查
+console.log("环境变量检查:", {
+  WX_APPID: process.env.WX_APPID,
+  WX_APP_SECRET: !!process.env.WX_APP_SECRET,
+  NODE_ENV: process.env.NODE_ENV,
+});
+
+// 然后再加载其他模块
+const responseHandler = require("./middleware/response");
+const config = require("./config");
+
+// 检查必要的配置
+if (!config.wx.validate()) {
+  console.error("缺少必要的微信配置，请检查 .env 文件");
+  process.exit(1);
+}
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = config.server.port;
 
 // SSL 配置
 // const options = {
 //   key: fs.readFileSync(path.join(__dirname, "../certs/localhost+1-key.pem")),
 //   cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+1.pem")),
 // };
-
-// JWT 密钥
-const JWT_SECRET = "your-jwt-secret";
 
 // 更新 CORS 配置
 app.use(
@@ -32,6 +52,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(responseHandler);
 
 // 模拟数据库
 const userDB = new Map();
@@ -51,27 +72,18 @@ app.get("/api/user/info", (req, res) => {
     const userInfo = userDB.get(decoded.openid);
 
     if (!userInfo) {
-      return res.status(404).json({
-        code: -1,
-        message: "用户不存在",
-      });
+      return res.error("用户不存在", "4040");
     }
 
-    res.json({
-      code: 0,
-      data: userInfo,
-    });
+    res.success(userInfo);
   } catch (error) {
-    res.status(401).json({
-      code: -1,
-      message: "token 无效",
-    });
+    res.error("token 无效", "4010");
   }
 });
 
 // 健康检查接口
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
+  res.success({ status: "ok" });
 });
 
 // 注册路由

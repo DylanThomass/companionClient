@@ -1,14 +1,8 @@
 import request from "@/utils/request";
 
-// 用户相关接口
-export function wxLogin(code) {
-  return request({
-    url: "/wx/login",
-    method: "post",
-    data: { code },
-  });
-}
-
+/**
+ * 获取用户信息
+ */
 export function getUserInfo() {
   return request({
     url: "/user/info",
@@ -16,13 +10,12 @@ export function getUserInfo() {
   });
 }
 
-export function logout() {
-  return request({
-    url: "/user/logout",
-    method: "post",
-  });
-}
-
+/**
+ * 账号密码登录
+ * @param {Object} data - 登录参数
+ * @param {string} data.username - 用户名
+ * @param {string} data.password - 密码
+ */
 export function login(data) {
   return request({
     url: "/user/login",
@@ -31,11 +24,12 @@ export function login(data) {
   });
 }
 
-// 微信授权登录
-export function wxAuth(data) {
+/**
+ * 退出登录
+ */
+export function logout() {
   return request({
-    url: "/wx/auth",
+    url: "/user/logout",
     method: "post",
-    data,
   });
 }

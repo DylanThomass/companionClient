@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <van-nav-bar
-      title="Companion"
+      :title="appTitle"
       left-arrow
       @click-left="onClickLeft"
       fixed
@@ -12,36 +12,69 @@
       <component :is="Component" />
     </router-view>
 
-    <van-tabbar v-model="active">
-      <van-tabbar-item icon="home-o" to="/">首页</van-tabbar-item>
+    <van-tabbar v-model="activeTab" v-if="showTabbar">
+      <van-tabbar-item
+        v-for="tab in tabs"
+        :key="tab.path"
+        :icon="tab.icon"
+        :to="tab.path"
+      >
+        {{ tab.text }}
+      </van-tabbar-item>
     </van-tabbar>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { initWxConfig } from "@/utils/wx-sdk";
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { initWxConfig, isWxEnv } from "@/utils/wx-sdk";
+
+// 应用配置
+const appTitle = process.env.VUE_APP_TITLE || "Companion";
+
+// 标签栏配置
+const tabs = [
+  { path: "/", icon: "home-o", text: "首页" },
+  { path: "/user", icon: "user-o", text: "我的" },
+];
 
 const router = useRouter();
-const active = ref(0);
+const route = useRoute();
+const activeTab = ref(0);
+
+// 控制标签栏显示
+const showTabbar = computed(() => {
+  // 在登录页和授权页不显示标签栏
+  const hiddenPaths = ["/login", "/wx-auth"];
+  return !hiddenPaths.includes(route.path);
+});
 
 const onClickLeft = () => {
+  // 如果是首页，不显示返回按钮
+  if (route.path === "/") {
+    return;
+  }
   router.back();
 };
 
 onMounted(async () => {
   console.log("App mounted, 准备初始化微信配置");
   try {
-    // 如果当前页面包含授权参数，则不初始化微信配置
-    if (
-      window.location.href.includes("code=") &&
-      window.location.href.includes("state=")
-    ) {
-      console.log("当前是授权回调页面，跳过微信配置");
+    // 非微信环境不初始化配置
+    if (!isWxEnv()) {
+      console.log("非微信环境，跳过配置初始化");
       return;
     }
-    await initWxConfig();
+
+    // 获取当前页面 URL，不包含 hash
+    const url = window.location.href.split("#")[0];
+    await initWxConfig(url, [
+      "updateAppMessageShareData",
+      "updateTimelineShareData",
+      "chooseImage",
+      "getLocation",
+    ]);
     console.log("微信配置初始化完成");
   } catch (error) {
     console.error("App.vue 中微信配置初始化失败:", error);

@@ -6,79 +6,22 @@
       <p class="mt-3 text-surface-500">让温暖永远相伴</p>
     </div>
 
-    <!-- 登录表单 -->
-    <van-form @submit="onSubmit" class="space-y-8">
-      <!-- 输入框组 -->
-      <div class="space-y-4">
-        <van-field
-          v-model="formData.username"
-          name="username"
-          placeholder="请输入用户名"
-          :rules="[{ required: true, message: '请填写用户名' }]"
-          :disabled="loading"
-          class="h-14 bg-surface-100 rounded-design-sm overflow-hidden"
-        >
-          <template #left-icon>
-            <van-icon name="user-o" class="text-surface-400" />
-          </template>
-        </van-field>
-
-        <van-field
-          v-model="formData.password"
-          type="password"
-          name="password"
-          placeholder="请输入密码"
-          :rules="[{ required: true, message: '请填写密码' }]"
-          :disabled="loading"
-          class="h-14 bg-surface-100 rounded-design-sm overflow-hidden"
-        >
-          <template #left-icon>
-            <van-icon name="lock" class="text-surface-400" />
-          </template>
-        </van-field>
-      </div>
-
-      <!-- 按钮组 -->
-      <div class="space-y-4 mt-8">
-        <!-- 账号登录按钮 -->
-        <van-button
-          block
-          :loading="loading"
-          loading-text="登录中..."
-          class="btn-primary"
-          native-type="submit"
-        >
-          <span class="!text-white !font-medium !text-lg">账号登录</span>
-        </van-button>
-
-        <!-- 微信登录按钮 -->
-        <van-button block class="btn-wechat" @click="handleWxLogin">
-          <template #icon>
-            <van-icon name="wechat" class="!text-white !text-xl !mr-2" />
-          </template>
-          <span class="!text-white !font-medium !text-lg">微信登录</span>
-        </van-button>
-      </div>
-    </van-form>
-
-    <!-- 底部链接 -->
-    <div class="mt-8 flex justify-between px-2">
-      <span
-        class="text-surface-500 hover:text-surface-600 cursor-pointer transition-colors"
-        @click="handleForgetPassword"
+    <!-- 微信登录按钮 -->
+    <div class="mt-12">
+      <van-button
+        block
+        class="btn-wechat h-14 rounded-design"
+        @click="handleWxLogin"
       >
-        忘记密码
-      </span>
-      <span
-        class="text-brand-400 hover:text-brand-500 cursor-pointer transition-colors"
-        @click="handleRegister"
-      >
-        注册账号
-      </span>
+        <template #icon>
+          <van-icon name="wechat" class="text-white text-2xl mr-2" />
+        </template>
+        <span class="text-white font-medium text-lg">微信一键登录</span>
+      </van-button>
     </div>
 
     <!-- 服务条款 -->
-    <div class="mt-12 text-center text-sm text-surface-500">
+    <div class="mt-8 text-center text-sm text-surface-500">
       登录即代表您同意
       <span
         class="text-brand-400 hover:text-brand-500 cursor-pointer transition-colors"
@@ -108,11 +51,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { showToast, showDialog } from "vant";
 import { useUserStore } from "@/store/modules/user";
-import { login } from "@/api/user";
 
 const router = useRouter();
 const route = useRoute();
@@ -120,15 +62,6 @@ const userStore = useUserStore();
 
 // 页面标题
 const title = computed(() => process.env.VUE_APP_TITLE || "Companion");
-
-// 表单数据
-const formData = ref({
-  username: "",
-  password: "",
-});
-
-// 加载状态
-const loading = ref(false);
 
 // 是否为开发环境
 const isDev = computed(() => process.env.NODE_ENV === "development");
@@ -172,37 +105,6 @@ onMounted(() => {
   }
 });
 
-// 登录提交
-const onSubmit = async (values) => {
-  try {
-    loading.value = true;
-    const res = await login(values);
-    userStore.setToken(res.token);
-    showToast({
-      type: "success",
-      message: "登录成功",
-      onClose: () => {
-        const redirect = route.query.redirect || "/";
-        router.replace(redirect);
-      },
-    });
-  } catch (error) {
-    console.error("登录失败：", error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 忘记密码
-const handleForgetPassword = () => {
-  showToast("忘记密码功能开发中");
-};
-
-// 注册账号
-const handleRegister = () => {
-  showToast("注册功能开发中");
-};
-
 // 查看服务条款
 const handleViewTerms = () => {
   showDialog({
@@ -227,7 +129,8 @@ const handleWxLogin = () => {
     `${process.env.VUE_APP_WX_REDIRECT_URI}/wx-auth`
   );
   const scope = "snsapi_userinfo";
-  const state = encodeURIComponent("/");
+  const redirect = route.query.redirect || "/";
+  const state = encodeURIComponent(redirect);
 
   const wxAuthUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&state=${state}#wechat_redirect`;
 
@@ -245,3 +148,13 @@ const handleWxLogin = () => {
   window.location.href = wxAuthUrl;
 };
 </script>
+
+<style scoped>
+.btn-wechat {
+  @apply bg-[#07c160] border-[#07c160];
+}
+
+.btn-wechat:active {
+  @apply bg-[#06ad56] border-[#06ad56];
+}
+</style>

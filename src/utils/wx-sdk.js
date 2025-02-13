@@ -1,57 +1,68 @@
 import wx from "weixin-js-sdk";
-import { showToast } from "vant";
-import request from "./request";
+import { getWxConfig } from "@/api/wx";
 
-// 初始化微信配置
-export const initWxConfig = async () => {
+// 默认的 JS 接口列表
+const DEFAULT_JS_API_LIST = [
+  "updateAppMessageShareData",
+  "updateTimelineShareData",
+];
+
+/**
+ * 检查是否在微信环境
+ * @returns {boolean}
+ */
+export function isWxEnv() {
+  const ua = navigator.userAgent.toLowerCase();
+  return ua.includes("micromessenger");
+}
+
+/**
+ * 初始化微信 JS-SDK
+ * @param {string} url - 当前页面 URL
+ * @param {string[]} jsApiList - 需要使用的 JS 接口列表
+ */
+export async function initWxConfig(url, jsApiList = DEFAULT_JS_API_LIST) {
   try {
-    // 获取当前页面 URL，不包含 hash
-    const url = window.location.href.split("#")[0];
+    // 非微信环境不初始化
+    if (!isWxEnv()) {
+      console.log("非微信环境，跳过 JS-SDK 初始化");
+      return;
+    }
 
-    // 获取微信配置
-    const response = await request({
-      url: "/wx/config",
-      method: "get",
-      params: { url },
-    });
+    const { data } = await getWxConfig(url);
 
-    // 配置微信 SDK
     wx.config({
-      debug: process.env.VUE_APP_ENV === "development",
-      appId: response.appId,
-      timestamp: response.timestamp,
-      nonceStr: response.nonceStr,
-      signature: response.signature,
-      jsApiList: [
-        "updateAppMessageShareData",
-        "updateTimelineShareData",
-        "chooseImage",
-        "getLocation",
-      ],
+      debug: process.env.NODE_ENV === "development",
+      appId: data.appId,
+      timestamp: data.timestamp,
+      nonceStr: data.nonceStr,
+      signature: data.signature,
+      jsApiList,
+      openTagList: ["wx-open-launch-weapp"], // 开放标签，用于跳转小程序
     });
 
-    // 监听配置成功
-    wx.ready(() => {
-      console.log("微信 SDK 配置成功");
-    });
-
-    // 监听配置失败
-    wx.error((res) => {
-      console.error("微信 SDK 配置失败", res);
-      showToast({
-        message: "微信配置失败",
-        type: "fail",
+    return new Promise((resolve, reject) => {
+      wx.ready(() => {
+        console.log("微信 JS-SDK 配置成功");
+        resolve();
+      });
+      wx.error((err) => {
+        console.error("微信 JS-SDK 配置失败:", {
+          url,
+          error: err,
+          config: data,
+        });
+        reject(err);
       });
     });
   } catch (error) {
-    console.error("初始化微信配置失败:", error);
-    showToast({
-      message: "微信配置失败",
-      type: "fail",
+    console.error("初始化微信配置失败:", {
+      url,
+      error: error.message || error,
     });
     throw error;
   }
-};
+}
 
 // 选择图片
 export function chooseImage(count = 1) {
@@ -73,6 +84,66 @@ export function getLocation() {
       type: "gcj02",
       success: resolve,
       fail: reject,
+    });
+  });
+}
+
+/**
+ * 设置微信分享
+ * @param {Object} shareData - 分享配置
+ * @param {string} shareData.title - 分享标题
+ * @param {string} shareData.desc - 分享描述
+ * @param {string} shareData.link - 分享链接
+ * @param {string} shareData.imgUrl - 分享图标
+ */
+export function setWxShare(shareData) {
+  if (!isWxEnv()) {
+    console.warn("非微信环境，分享功能不可用");
+    return;
+  }
+
+  const data = {
+    title: shareData.title,
+    desc: shareData.desc,
+    link: shareData.link,
+    imgUrl: shareData.imgUrl,
+  };
+
+  try {
+    wx.updateAppMessageShareData(data);
+    wx.updateTimelineShareData(data);
+  } catch (error) {
+    console.error("设置微信分享失败:", error.message || error);
+    throw error;
+  }
+}
+
+/**
+ * 检查 JS-SDK 是否可用
+ * @returns {Promise<boolean>}
+ */
+export function checkWxSdkAvailable() {
+  return new Promise((resolve) => {
+    if (!isWxEnv()) {
+      resolve(false);
+      return;
+    }
+
+    if (typeof wx === "undefined") {
+      console.error("微信 JS-SDK 未加载");
+      resolve(false);
+      return;
+    }
+
+    wx.checkJsApi({
+      jsApiList: ["updateAppMessageShareData", "updateTimelineShareData"],
+      success: (res) => {
+        resolve(true);
+      },
+      fail: (err) => {
+        console.error("JS-SDK 接口检查失败:", err);
+        resolve(false);
+      },
     });
   });
 }

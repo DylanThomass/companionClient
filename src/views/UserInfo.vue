@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-surface-50 p-6">
-    <!-- 头部信息卡片 -->
+  <div class="min-h-screen bg-surface-50 px-6 py-12">
+    <!-- 用户信息卡片 -->
     <div class="bg-white rounded-design shadow-sm overflow-hidden">
       <!-- 头像和昵称区域 -->
       <div class="p-8 bg-gradient-to-br from-brand-300 to-brand-400">
@@ -21,41 +21,33 @@
               </div>
             </template>
           </van-image>
-
           <div class="flex-1">
             <h2 class="text-2xl font-semibold text-white">
               {{ userStore.userInfo?.nickname || "亲爱的用户" }}
             </h2>
             <p class="mt-2 text-white/80">
-              {{ formatLocation() }}
+              {{ userStore.userInfo?.country }}
+              {{ userStore.userInfo?.province }}
             </p>
           </div>
         </div>
       </div>
 
-      <!-- 用户信息列表 -->
+      <!-- 信息列表 -->
       <div class="divide-y divide-surface-100">
         <van-cell
-          title="性别"
-          :value="formatGender(userStore.userInfo?.sex)"
-          class="text-surface-600 h-16"
-        />
-        <van-cell
-          title="地区"
-          :value="formatLocation()"
-          class="text-surface-600 h-16"
-        />
-        <van-cell
-          title="ID"
-          :value="formatOpenId()"
+          v-for="(item, index) in userInfoItems"
+          :key="index"
+          :title="item.label"
+          :value="item.value"
           class="text-surface-600 h-16"
         />
       </div>
     </div>
 
-    <!-- 操作按钮组 -->
-    <div class="mt-8">
-      <van-button block class="btn-secondary" @click="handleLogout">
+    <!-- 操作按钮 -->
+    <div class="mt-8 space-y-4">
+      <van-button block class="btn-primary" @click="handleLogout">
         退出登录
       </van-button>
     </div>
@@ -64,14 +56,16 @@
     <div v-if="isDev" class="mt-8">
       <van-collapse
         v-model="activeNames"
-        class="rounded-design overflow-hidden"
+        class="rounded-design overflow-hidden bg-white"
       >
         <van-collapse-item title="调试信息" name="1">
-          <pre
-            class="text-assist bg-base-bg p-4 rounded-design overflow-x-auto font-mono text-gray-600"
-          >
-            {{ JSON.stringify(userStore.userInfo, null, 2) }}
-          </pre>
+          <div class="p-4 bg-surface-50 rounded-b-design">
+            <pre
+              class="text-sm font-mono text-surface-600 whitespace-pre-wrap break-all"
+            >
+              {{ JSON.stringify(userStore.userInfo, null, 2) }}
+            </pre>
+          </div>
         </van-collapse-item>
       </van-collapse>
     </div>
@@ -91,44 +85,47 @@ const activeNames = ref([]);
 // 是否为开发环境
 const isDev = computed(() => process.env.VUE_APP_ENV === "development");
 
-// 格式化性别显示
-const formatGender = (sex) => {
-  const genderMap = {
-    1: "男",
-    2: "女",
-    0: "未知",
-  };
-  return genderMap[sex] || "未知";
-};
-
-// 格式化地区显示
-const formatLocation = () => {
-  const { province, city } = userStore.userInfo || {};
-  if (province && city && province !== city) {
-    return `${province} ${city}`;
-  }
-  return province || city || "未知";
-};
-
-// 格式化 OpenID 显示（仅显示前后几位）
-const formatOpenId = () => {
-  const openid = userStore.userInfo?.openid;
-  if (!openid) return "未知";
-  return `${openid.slice(0, 4)}...${openid.slice(-4)}`;
-};
+// 用户信息列表
+const userInfoItems = computed(() => [
+  {
+    label: "昵称",
+    value: userStore.userInfo?.nickname,
+  },
+  {
+    label: "性别",
+    value: userStore.userInfo?.sex === 1 ? "男" : "女",
+  },
+  {
+    label: "地区",
+    value: `${userStore.userInfo?.country} ${userStore.userInfo?.province} ${userStore.userInfo?.city}`,
+  },
+]);
 
 // 退出登录
 const handleLogout = () => {
   showDialog({
-    title: "确认退出",
-    message: "是否确认退出登录？",
-    showCancelButton: true,
-  }).then((action) => {
-    if (action === "confirm") {
-      userStore.logout();
-      showToast("已退出登录");
-      router.replace("/login");
-    }
+    title: "提示",
+    message: "确定要退出登录吗？",
+    confirmButtonText: "退出",
+    confirmButtonColor: "#ef4444",
+  }).then(() => {
+    userStore.logout();
+    showToast("已退出登录");
+    router.replace("/login");
   });
 };
 </script>
+
+<style scoped>
+.btn-primary {
+  @apply bg-brand-500 border-brand-500;
+}
+
+.btn-primary:active {
+  @apply bg-brand-600 border-brand-600;
+}
+
+.btn-primary :deep(.van-button__text) {
+  @apply text-white font-medium text-lg;
+}
+</style>

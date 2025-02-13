@@ -1,0 +1,52 @@
+// Vue 3 Composition API .cursorrules
+
+// Vue 3 Composition API 最佳实践
+const vue3CompositionApiBestPractices = [
+  "使用 setup() 函数来管理组件逻辑",
+  "使用 ref 和 reactive 管理响应式状态",
+  "使用 computed() 实现计算属性",
+  "使用 watch 和 watchEffect 处理副作用",
+  "使用 onMounted, onUpdated 等实现生命周期钩子",
+  "利用 provide/inject 进行依赖注入",
+];
+
+// 文件夹结构
+const folderStructure = `
+src/
+  components/
+  composables/
+  views/
+  router/
+  store/
+  assets/
+  App.vue
+  main.js
+`;
+
+// 额外指引
+const additionalInstructions = `
+1. 使用 JavaScript 语言
+2. 实现适当的 props 和 emits 定义
+3. 在需要时利用 Vue 3 的 Teleport 组件
+4. 使用 Suspense 处理异步组件
+5. 实现合适的错误处理
+6. 遵循 Vue 3 的风格指南和命名约定
+`;
+
+// Vant 4 和 UnoCSS 规则
+const vantAndUnoCSSRules = `
+1. 使用 Vant 4 组件库（例如 Button, Cell, Dialog）。
+2. 配置 UnoCSS，确保按需引入样式。
+3. 遵循原子化 CSS 设计原则，避免重复样式编写。
+4. 使用 Vant 组件的提供样式名进行类名配置。
+5. 确保组件间样式隔离，避免样式污染。
+`;
+
+// 微信H5适配规则
+const wechatH5Rules = `
+1. 保证 HTTPS 协议，微信要求在安全域名下运行 H5 应用。
+2. 在应用中动态请求微信配置，并正确处理 API 的签名。
+3. 实现用户体验优化，适应微信内浏览器：
+   - 确保页面响应流畅，避免长时间加载。
+   - 设置 meta 标签，优化视口。
+`;

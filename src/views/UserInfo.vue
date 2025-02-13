@@ -1,55 +1,291 @@
 <template>
-  <div class="min-h-screen bg-surface-50 px-6 py-12">
+  <div class="min-h-screen bg-gradient-to-b from-surface-50 to-surface-100">
     <!-- 用户信息卡片 -->
-    <div class="bg-white rounded-design shadow-sm overflow-hidden">
+    <div class="relative px-6 pt-12">
       <!-- 头像和昵称区域 -->
-      <div class="p-8 bg-gradient-to-br from-brand-300 to-brand-400">
-        <div class="flex items-center space-x-6">
-          <van-image
-            round
-            width="88"
-            height="88"
-            :src="userStore.userInfo?.headimgurl"
-            :alt="userStore.userInfo?.nickname"
-            class="flex-shrink-0 border-4 border-white/50 shadow-lg"
+      <div class="relative z-10">
+        <!-- 装饰背景 -->
+        <div class="absolute -top-6 -left-6 -right-6 h-48">
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-brand-400 via-brand-500 to-brand-600"
           >
-            <template #error>
-              <div
-                class="w-[88px] h-[88px] rounded-full bg-white/20 flex items-center justify-center"
+            <!-- 添加一个柔和的渐变遮罩 -->
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent"
+            ></div>
+            <!-- 底部过渡效果 -->
+            <div
+              class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white via-white/90 to-transparent"
+            ></div>
+          </div>
+        </div>
+
+        <!-- 用户信息内容 -->
+        <div class="relative bg-white rounded-2xl px-6 py-4 shadow-lg">
+          <div class="flex items-center">
+            <!-- 头像区域 -->
+            <div class="relative flex-shrink-0 w-24 self-end">
+              <van-image
+                round
+                width="96"
+                height="96"
+                :src="avatarUrl"
+                :alt="userStore.userInfo?.nickname"
+                class="border-4 border-white shadow-lg"
               >
-                <van-icon name="user-circle-o" size="44" class="text-white" />
+                <template #error>
+                  <div
+                    class="w-[96px] h-[96px] rounded-full bg-surface-100 flex items-center justify-center"
+                  >
+                    <van-icon
+                      name="user-circle-o"
+                      size="48"
+                      class="text-surface-400"
+                    />
+                  </div>
+                </template>
+              </van-image>
+              <!-- 头像编辑蒙层 -->
+              <div
+                class="absolute inset-0 rounded-full bg-black/0 hover:bg-black/20 flex items-center justify-center cursor-pointer transition-all duration-300 group"
+                @click="handleEditAvatar"
+              >
+                <van-icon
+                  name="photograph"
+                  class="text-2xl text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                />
               </div>
-            </template>
-          </van-image>
-          <div class="flex-1">
-            <h2 class="text-2xl font-semibold text-white">
-              {{ userStore.userInfo?.nickname || "亲爱的用户" }}
-            </h2>
-            <p class="mt-2 text-white/80">
-              {{ userStore.userInfo?.country }}
-              {{ userStore.userInfo?.province }}
-            </p>
+            </div>
+
+            <!-- 用户信息 -->
+            <div class="flex-1 px-4 flex flex-col justify-between h-[96px]">
+              <!-- 昵称区域 -->
+              <div class="text-2xl font-semibold text-surface-800 mt-4">
+                {{ userStore.userInfo?.nickname || "亲爱的用户" }}
+              </div>
+              <!-- 地域信息 -->
+              <div
+                class="flex items-center text-surface-500 text-sm space-x-1 mb-4"
+              >
+                <van-icon name="location-o" class="mr-1" />
+                <span
+                  >{{ userStore.userInfo?.province }}
+                  {{ userStore.userInfo?.city }}</span
+                >
+              </div>
+            </div>
+
+            <!-- 编辑按钮 -->
+            <div class="flex-shrink-0 self-center">
+              <van-button
+                class="edit-btn"
+                round
+                size="small"
+                @click="handleEdit"
+              >
+                <template #icon>
+                  <van-icon name="edit" class="text-sm" />
+                </template>
+                编辑
+              </van-button>
+            </div>
+          </div>
+
+          <!-- 经验值进度条 -->
+          <div class="mt-6 space-y-2">
+            <div class="flex items-center justify-between">
+              <span
+                class="px-2 py-0.5 bg-brand-100 text-brand-500 rounded-full text-xs font-medium"
+              >
+                {{ userLevel.title }}
+              </span>
+              <span class="text-brand-500 font-medium">
+                {{ userLevel.exp }}/{{ userLevel.nextExp }}
+              </span>
+            </div>
+            <div class="h-2 bg-surface-100 rounded-full overflow-hidden">
+              <div
+                class="h-full bg-gradient-to-r from-brand-400 to-brand-500 rounded-full transition-all duration-300"
+                :style="{ width: `${userLevel.exp % 100}%` }"
+              ></div>
+            </div>
+          </div>
+
+          <!-- 功能按钮组 -->
+          <div class="mt-8 grid grid-cols-3 gap-3">
+            <div
+              class="flex flex-col items-center justify-center py-3 px-2 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              @click="handleSignIn"
+            >
+              <van-icon name="sign" class="text-2xl text-brand-500 mb-1" />
+              <span class="text-surface-600 text-sm">
+                {{ userStats.todaySignIn ? "已签到" : "每日签到" }}
+              </span>
+            </div>
+            <div
+              class="flex flex-col items-center justify-center py-3 px-2 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              @click="handleInvite"
+            >
+              <van-icon name="friends-o" class="text-2xl text-brand-500 mb-1" />
+              <span class="text-surface-600 text-sm">邀请好友</span>
+            </div>
+            <div
+              class="flex flex-col items-center justify-center py-3 px-2 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              @click="handleBecomeSeller"
+            >
+              <van-icon name="shop-o" class="text-2xl text-brand-500 mb-1" />
+              <span class="text-surface-600 text-sm">成为店员</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 信息列表 -->
-      <div class="divide-y divide-surface-100">
-        <van-cell
-          v-for="(item, index) in userInfoItems"
-          :key="index"
-          :title="item.label"
-          :value="item.value"
-          class="text-surface-600 h-16"
-        />
+      <!-- 用户数据统计 -->
+      <div class="mt-4 grid grid-cols-4 gap-2">
+        <div
+          class="bg-surface-50 rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300"
+        >
+          <div class="text-lg font-semibold text-brand-500">
+            ¥{{ userStats.balance }}
+          </div>
+          <div class="text-xs text-surface-500">余额</div>
+        </div>
+        <div
+          class="bg-surface-50 rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300"
+        >
+          <div class="text-lg font-semibold text-brand-500">
+            {{ userStats.coupons }}
+          </div>
+          <div class="text-xs text-surface-500">卡券</div>
+        </div>
+        <div
+          class="bg-surface-50 rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300"
+        >
+          <div class="text-lg font-semibold text-brand-500">
+            {{ userStats.signInDays }}
+          </div>
+          <div class="text-xs text-surface-500">签到</div>
+        </div>
+        <div
+          class="bg-surface-50 rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300"
+        >
+          <div class="text-lg font-semibold text-brand-500">
+            {{ userStats.inviteCount }}
+          </div>
+          <div class="text-xs text-surface-500">邀请</div>
+        </div>
       </div>
-    </div>
 
-    <!-- 操作按钮 -->
-    <div class="mt-8 space-y-4">
-      <van-button block class="btn-primary" @click="handleLogout">
-        退出登录
-      </van-button>
+      <!-- 功能模块 -->
+      <div class="mt-6 grid grid-cols-2 gap-4">
+        <!-- 订单与收藏 -->
+        <div class="bg-white rounded-2xl p-4 shadow-lg">
+          <div class="text-sm text-surface-500 mb-3">订单与收藏</div>
+          <div class="space-y-2">
+            <div
+              class="flex items-center p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              @click="handleOrders"
+            >
+              <van-icon name="orders-o" class="text-xl text-brand-500" />
+              <span class="ml-2 text-surface-600 text-sm">订单管理</span>
+              <van-icon name="arrow" class="ml-auto text-surface-400" />
+            </div>
+            <div
+              class="flex items-center p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              @click="handleFavorites"
+            >
+              <van-icon name="like-o" class="text-xl text-brand-500" />
+              <span class="ml-2 text-surface-600 text-sm">收藏店员</span>
+              <van-icon name="arrow" class="ml-auto text-surface-400" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 帮助与支持 -->
+        <div class="bg-white rounded-2xl p-4 shadow-lg">
+          <div class="text-sm text-surface-500 mb-3">帮助与支持</div>
+          <div class="space-y-2">
+            <div
+              class="flex items-center p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              @click="handleCustomerService"
+            >
+              <van-icon name="service-o" class="text-xl text-brand-500" />
+              <span class="ml-2 text-surface-600 text-sm">咨询客服</span>
+              <van-icon name="arrow" class="ml-auto text-surface-400" />
+            </div>
+            <div
+              class="flex items-center p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors duration-300"
+              @click="handleClearCache"
+            >
+              <van-icon name="delete-o" class="text-xl text-brand-500" />
+              <span class="ml-2 text-surface-600 text-sm">清理缓存</span>
+              <van-icon name="arrow" class="ml-auto text-surface-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 即将推出 -->
+      <div class="mt-6 bg-white/60 backdrop-blur rounded-2xl p-4 shadow-lg">
+        <div class="text-sm text-surface-500 mb-3 flex items-center">
+          <van-icon name="upgrade" class="mr-1 text-brand-400" />
+          即将推出
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <!-- AI角色管理 -->
+          <div
+            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+          >
+            <van-icon name="friends" class="text-xl text-surface-400" />
+            <span class="ml-2 text-surface-500 text-sm">AI角色管理</span>
+            <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
+          </div>
+          <!-- 创业加盟 -->
+          <div
+            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+          >
+            <van-icon name="shop" class="text-xl text-surface-400" />
+            <span class="ml-2 text-surface-500 text-sm">创业加盟</span>
+            <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
+          </div>
+          <!-- 社区活动 -->
+          <div
+            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+          >
+            <van-icon name="cluster" class="text-xl text-surface-400" />
+            <span class="ml-2 text-surface-500 text-sm">社区活动</span>
+            <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
+          </div>
+          <!-- 积分商城 -->
+          <div
+            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+          >
+            <van-icon name="gift" class="text-xl text-surface-400" />
+            <span class="ml-2 text-surface-500 text-sm">积分商城</span>
+            <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
+          </div>
+        </div>
+      </div>
+
+      <!-- 用户标签 -->
+      <div class="mt-6 bg-white rounded-2xl p-6 shadow-lg">
+        <div class="text-sm text-surface-500 mb-3">个性标签</div>
+        <div class="flex flex-wrap gap-3">
+          <span
+            v-for="tag in userTags"
+            :key="tag"
+            class="px-4 py-2 bg-surface-50 text-surface-600 rounded-full text-sm hover:bg-brand-50 hover:text-brand-500 cursor-pointer transition-colors duration-300"
+          >
+            {{ tag }}
+          </span>
+          <span
+            class="px-4 py-2 border border-dashed border-surface-200 text-surface-400 rounded-full text-sm hover:border-brand-300 hover:text-brand-500 cursor-pointer transition-colors duration-300"
+            @click="handleAddTag"
+          >
+            + 添加标签
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- 调试信息 -->
@@ -77,29 +313,81 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/modules/user";
 import { showToast, showDialog } from "vant";
+import testAvatar from "@/assets/test/HeadImg.jpg";
 
 const router = useRouter();
 const userStore = useUserStore();
 const activeNames = ref([]);
 
 // 是否为开发环境
-const isDev = computed(() => process.env.VUE_APP_ENV === "development");
+const isDev = computed(() => process.env.NODE_ENV === "development");
 
-// 用户信息列表
-const userInfoItems = computed(() => [
-  {
-    label: "昵称",
-    value: userStore.userInfo?.nickname,
-  },
-  {
-    label: "性别",
-    value: userStore.userInfo?.sex === 1 ? "男" : "女",
-  },
-  {
-    label: "地区",
-    value: `${userStore.userInfo?.country} ${userStore.userInfo?.province} ${userStore.userInfo?.city}`,
-  },
-]);
+// 头像地址
+const avatarUrl = computed(() =>
+  isDev.value ? testAvatar : userStore.userInfo?.headimgurl
+);
+
+// 用户等级信息
+const userLevel = computed(() => {
+  const exp = 750; // 这里应该从后端获取
+  const level = Math.floor(exp / 100) + 1;
+  const titles = ["初心者", "温暖使者", "关怀大师", "守护天使", "温暖领袖"];
+  return {
+    level,
+    exp,
+    nextExp: level * 100,
+    title: titles[Math.min(level - 1, titles.length - 1)],
+  };
+});
+
+// 用户统计信息
+const userStats = ref({
+  balance: 520.0,
+  coupons: 3,
+  signInDays: 7,
+  inviteCount: 3,
+  todaySignIn: false,
+});
+
+// 用户标签
+const userTags = ref(["乐观开朗", "善解人意", "倾听者", "温暖治愈"]);
+
+// 签到
+const handleSignIn = () => {
+  if (userStats.value.todaySignIn) return;
+  // TODO: 调用签到接口
+  userStats.value.todaySignIn = true;
+  userStats.value.signInDays++;
+  showToast({
+    message: "签到成功",
+    icon: "success",
+  });
+};
+
+// 邀请好友
+const handleInvite = () => {
+  // TODO: 调用分享接口
+  showToast("邀请功能开发中");
+};
+
+// 成为店员
+const handleBecomeSeller = () => {
+  showDialog({
+    title: "成为店员",
+    message: "成为店员后可以管理店铺、处理订单等",
+    confirmButtonText: "立即申请",
+    confirmButtonColor: "#f05252",
+    cancelButtonText: "暂不考虑",
+  })
+    .then(() => {
+      // TODO: 调用申请接口
+      showToast({
+        message: "申请已提交",
+        icon: "success",
+      });
+    })
+    .catch(() => {});
+};
 
 // 退出登录
 const handleLogout = () => {
@@ -114,6 +402,66 @@ const handleLogout = () => {
     router.replace("/login");
   });
 };
+
+// 编辑用户资料
+const handleEdit = () => {
+  showToast("编辑功能开发中");
+};
+
+// 编辑头像
+const handleEditAvatar = () => {
+  showToast("头像编辑功能开发中");
+};
+
+// 订单管理
+const handleOrders = () => {
+  router.push("/orders");
+};
+
+// 收藏店员
+const handleFavorites = () => {
+  router.push("/favorites");
+};
+
+// 咨询客服
+const handleCustomerService = () => {
+  showDialog({
+    title: "联系客服",
+    message: "工作时间：周一至周日 9:00-21:00",
+    confirmButtonText: "拨打电话",
+    confirmButtonColor: "#f05252",
+    cancelButtonText: "取消",
+  })
+    .then(() => {
+      window.location.href = "tel:400-123-4567";
+    })
+    .catch(() => {});
+};
+
+// 清理缓存
+const handleClearCache = () => {
+  showDialog({
+    title: "清理缓存",
+    message: "确定要清理应用缓存吗？这可能需要重新加载一些数据。",
+    confirmButtonText: "确定清理",
+    confirmButtonColor: "#f05252",
+  })
+    .then(() => {
+      // TODO: 清理本地缓存
+      localStorage.clear();
+      showToast({
+        message: "缓存已清理",
+        icon: "success",
+      });
+    })
+    .catch(() => {});
+};
+
+// 添加标签
+const handleAddTag = () => {
+  // TODO: 实现添加标签功能
+  showToast("添加标签功能开发中");
+};
 </script>
 
 <style scoped>
@@ -127,5 +475,41 @@ const handleLogout = () => {
 
 .btn-primary :deep(.van-button__text) {
   @apply text-white font-medium text-lg;
+}
+
+.btn-secondary {
+  @apply bg-brand-200 border-brand-200;
+}
+
+.btn-secondary:active {
+  @apply bg-brand-300 border-brand-300;
+}
+
+.btn-secondary :deep(.van-button__text) {
+  @apply text-brand-500 font-medium text-lg;
+}
+
+.btn-danger {
+  @apply bg-danger-500 border-danger-500;
+}
+
+.btn-danger:active {
+  @apply bg-danger-600 border-danger-600;
+}
+
+.btn-danger :deep(.van-button__text) {
+  @apply text-white font-medium text-lg;
+}
+
+.edit-btn {
+  @apply bg-white/90 backdrop-blur text-surface-600 border-surface-200;
+}
+
+.edit-btn:active {
+  @apply bg-surface-50;
+}
+
+.edit-btn :deep(.van-button__text) {
+  @apply text-sm font-normal;
 }
 </style>

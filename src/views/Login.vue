@@ -123,6 +123,26 @@ const handleViewPrivacy = () => {
 
 // 微信登录
 const handleWxLogin = () => {
+  // 开发环境直接模拟登录
+  if (process.env.NODE_ENV === "development") {
+    // 开发环境模拟数据
+    const mockUserInfo = {
+      openid: "oZdZL6hs_Jn4yFiJ2GWUuQyR0DhE",
+      nickname: "开发测试",
+      sex: 1,
+      province: "广东",
+      city: "深圳",
+      country: "中国",
+      headimgurl:
+        "https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTLB34sBwSiaL3GJk0EWtpqT9y8Zw3qvCmZZsGbHXjs3HhicUgicjxqKhWkJqDHRrH0ibFLQxFZLEuLYxw/132",
+      privilege: [],
+    };
+    userStore.setUserInfo(mockUserInfo);
+    userStore.setToken("dev_token");
+    router.replace("/");
+    return;
+  }
+
   // 构建微信授权 URL
   const appid = process.env.VUE_APP_WX_APPID;
   const redirectUri = encodeURIComponent(

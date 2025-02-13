@@ -8,6 +8,15 @@ export const useUserStore = defineStore("user", {
   }),
 
   actions: {
+    // 开发环境使用
+    setUserInfo(info) {
+      this.userInfo = info;
+    },
+
+    setToken(token) {
+      this.token = token;
+    },
+
     async login(code) {
       const data = await wxLogin(code);
       this.token = data.token;

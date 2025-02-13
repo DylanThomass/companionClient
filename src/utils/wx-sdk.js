@@ -12,6 +12,10 @@ const DEFAULT_JS_API_LIST = [
  * @returns {boolean}
  */
 export function isWxEnv() {
+  // 开发环境返回 true，方便调试
+  if (process.env.NODE_ENV === "development") {
+    return true;
+  }
   const ua = navigator.userAgent.toLowerCase();
   return ua.includes("micromessenger");
 }

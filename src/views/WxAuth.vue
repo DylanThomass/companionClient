@@ -23,9 +23,6 @@ onMounted(async () => {
       throw new Error("未获取到授权码");
     }
 
-    // await userStore.login(code);
-    // await nextTick();
-
     if (!userStore.isLoggedIn) {
       throw new Error("登录状态更新失败");
     }

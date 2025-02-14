@@ -66,24 +66,10 @@
               <!-- 标签角标 -->
               <div
                 v-if="userTags[0]"
-                class="absolute -bottom-2 right-0 px-2 py-1 bg-white rounded-full shadow-lg transform -rotate-12 cursor-pointer group"
-                @click="handleManageTags"
+                style="transform: rotate(-12deg)"
+                class="absolute -bottom-2 right-0 px-2 py-1 bg-white rounded-full shadow-lg cursor-pointer group"
               >
-                <span
-                  class="text-xs text-brand-500 group-hover:text-brand-600 transition-colors duration-300"
-                >
-                  #{{ userTags[0] }}
-                </span>
-              </div>
-              <!-- 头像编辑蒙层 -->
-              <div
-                class="absolute inset-0 rounded-full bg-black/0 hover:bg-black/20 flex items-center justify-center cursor-pointer transition-all duration-300 group"
-                @click="handleEditAvatar"
-              >
-                <van-icon
-                  name="photograph"
-                  class="text-2xl text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                />
+                <span class="text-xs text-brand-500"> #{{ userTags[0] }} </span>
               </div>
             </div>
 
@@ -324,6 +310,12 @@
             <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
           </div>
         </div>
+        <!-- 退出登录按钮 -->
+        <div class="mt-6">
+          <van-button block round class="btn-danger" @click="handleLogout">
+            退出登录
+          </van-button>
+        </div>
       </div>
     </div>
 
@@ -367,7 +359,8 @@ const avatarUrl = computed(() => {
 
 // 用户等级信息
 const userLevel = computed(() => {
-  const exp = 750; // 这里应该从后端获取
+  // TODO: 从后端获取用户经验值
+  const exp = 750;
   const level = Math.floor(exp / 100) + 1;
   const titles = ["初心者", "温暖使者", "关怀大师", "守护天使", "温暖领袖"];
   return {
@@ -380,6 +373,7 @@ const userLevel = computed(() => {
 
 // 用户统计信息
 const userStats = ref({
+  // TODO: 从后端获取用户统计数据
   balance: 520.0,
   coupons: 3,
   signInDays: 7,
@@ -388,12 +382,21 @@ const userStats = ref({
 });
 
 // 用户标签
-const userTags = ref(["乐观开朗", "善解人意", "倾听者", "温暖治愈"]);
+const userTags = ref([
+  // TODO: 从后端获取用户标签
+  "乐观开朗",
+  "善解人意",
+  "倾听者",
+  "温暖治愈",
+]);
 
 // 签到
 const handleSignIn = () => {
   if (userStats.value.todaySignIn) return;
-  // TODO: 调用签到接口
+  // TODO: 实现签到功能
+  // 1. 调用签到接口
+  // 2. 更新签到状态和天数
+  // 3. 获取签到奖励
   userStats.value.todaySignIn = true;
   userStats.value.signInDays++;
   showToast({
@@ -412,50 +415,13 @@ const handleBecomeSeller = () => {
     cancelButtonText: "暂不考虑",
   })
     .then(() => {
-      // TODO: 调用申请接口
+      // TODO: 实现店员申请功能
+      // 1. 调用申请接口
+      // 2. 处理审核流程
       showToast({
         message: "申请已提交",
         icon: "success",
       });
-    })
-    .catch(() => {});
-};
-
-// 标签管理
-const handleManageTags = () => {
-  showDialog({
-    title: "个性标签",
-    message: h("div", { class: "py-4" }, [
-      h(
-        "div",
-        { class: "flex flex-wrap gap-2" },
-        userTags.value.map((tag) =>
-          h(
-            "span",
-            {
-              class:
-                "px-3 py-1.5 bg-surface-50 text-surface-600 rounded-full text-sm",
-            },
-            tag
-          )
-        )
-      ),
-      h(
-        "div",
-        {
-          class: "mt-4 text-sm text-surface-500",
-        },
-        "选择合适的标签，让别人更了解你"
-      ),
-    ]),
-    showCancelButton: true,
-    confirmButtonText: "编辑标签",
-    confirmButtonColor: "#14b8a6",
-    cancelButtonText: "关闭",
-  })
-    .then(() => {
-      // TODO: 跳转到标签编辑页面
-      showToast("标签编辑功能开发中");
     })
     .catch(() => {});
 };
@@ -486,11 +452,13 @@ const handleEditAvatar = () => {
 
 // 订单管理
 const handleOrders = () => {
+  // TODO: 实现订单管理页面
   router.push("/orders");
 };
 
 // 收藏店员
 const handleFavorites = () => {
+  // TODO: 实现收藏店员页面
   router.push("/favorites");
 };
 
@@ -518,7 +486,10 @@ const handleClearCache = () => {
     confirmButtonColor: "#f05252",
   })
     .then(() => {
-      // TODO: 清理本地缓存
+      // TODO: 实现缓存清理功能
+      // 1. 清理本地存储
+      // 2. 清理应用缓存
+      // 3. 重新加载必要数据
       localStorage.clear();
       showToast({
         message: "缓存已清理",
@@ -580,5 +551,9 @@ const onImageError = (error) => {
 
 .edit-btn :deep(.van-button__text) {
   @apply text-sm font-normal;
+}
+
+.tag-rotate {
+  transform: rotate(-12deg);
 }
 </style>

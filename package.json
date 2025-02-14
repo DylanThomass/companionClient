@@ -10,6 +10,7 @@
   "dependencies": {
     "@vant/area-data": "^2.0.0",
     "axios": "^1.6.5",
+    "canvas-confetti": "^1.9.3",
     "core-js": "^3.8.3",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^4.2.0",

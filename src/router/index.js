@@ -57,6 +57,24 @@ const routes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "/orders",
+    name: "OrderList",
+    component: () => import("@/views/OrderList.vue"),
+    meta: {
+      title: "订单管理",
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/order/:id",
+    name: "OrderDetail",
+    component: () => import("@/views/OrderDetail.vue"),
+    meta: {
+      title: "订单详情",
+      requiresAuth: true,
+    },
+  },
 ];
 
 const router = createRouter({

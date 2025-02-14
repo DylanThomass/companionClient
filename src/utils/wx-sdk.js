@@ -33,7 +33,7 @@ export async function initWxConfig(url, jsApiList = DEFAULT_JS_API_LIST) {
       return;
     }
 
-    const { data } = await getWxConfig(url);
+    const data = await getWxConfig(url);
 
     wx.config({
       debug: process.env.NODE_ENV === "development",

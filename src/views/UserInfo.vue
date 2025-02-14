@@ -21,7 +21,24 @@
         </div>
 
         <!-- 用户信息内容 -->
-        <div class="relative bg-white rounded-2xl px-6 py-4 shadow-lg">
+        <div
+          class="relative bg-white rounded-2xl px-6 py-4 shadow-lg overflow-hidden"
+        >
+          <!-- 性别标识 -->
+          <div
+            class="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center"
+            :class="[
+              userStore.userInfo?.sex === 1
+                ? 'bg-blue-50 text-blue-500'
+                : 'bg-pink-50 text-pink-500',
+            ]"
+          >
+            <van-icon
+              :name="userStore.userInfo?.sex === 1 ? 'male' : 'female'"
+              class="text-lg"
+            />
+          </div>
+
           <div class="flex items-center">
             <!-- 头像区域 -->
             <div class="relative flex-shrink-0 w-24 self-end">
@@ -32,6 +49,7 @@
                 :src="avatarUrl"
                 :alt="userStore.userInfo?.nickname"
                 class="border-4 border-white shadow-lg"
+                @error="onImageError"
               >
                 <template #error>
                   <div
@@ -76,9 +94,7 @@
                 {{ userStore.userInfo?.nickname || "亲爱的用户" }}
               </div>
               <!-- 地域信息 -->
-              <div
-                class="flex items-center text-surface-500 text-sm space-x-1 mb-4"
-              >
+              <div class="flex items-center text-surface-500 text-sm mb-4">
                 <van-icon name="location-o" class="mr-1" />
                 <span
                   >{{ userStore.userInfo?.province }}
@@ -336,7 +352,6 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/modules/user";
 import { showToast, showDialog } from "vant";
-import testAvatar from "@/assets/test/HeadImg.jpg";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -346,9 +361,9 @@ const activeNames = ref([]);
 const isDev = computed(() => process.env.NODE_ENV === "development");
 
 // 头像地址
-const avatarUrl = computed(() =>
-  isDev.value ? testAvatar : userStore.userInfo?.headimgurl
-);
+const avatarUrl = computed(() => {
+  return userStore.userInfo?.headimgurl;
+});
 
 // 用户等级信息
 const userLevel = computed(() => {
@@ -461,12 +476,12 @@ const handleLogout = () => {
 
 // 编辑用户资料
 const handleEdit = () => {
-  showToast("编辑功能开发中");
+  router.push("/user/edit");
 };
 
 // 编辑头像
 const handleEditAvatar = () => {
-  showToast("头像编辑功能开发中");
+  router.push("/user/edit");
 };
 
 // 订单管理
@@ -511,6 +526,10 @@ const handleClearCache = () => {
       });
     })
     .catch(() => {});
+};
+
+const onImageError = (error) => {
+  console.error("Image load error:", error);
 };
 </script>
 

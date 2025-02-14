@@ -1,23 +1,11 @@
 import { createApp } from "vue";
+import "vant/lib/index.css";
+import "vant/es/toast/style";
 import App from "./App.vue";
 import router from "./router";
 import pinia from "./store";
 import VConsole from "vconsole";
-import {
-  Button,
-  NavBar,
-  Tabbar,
-  TabbarItem,
-  Form,
-  Field,
-  CellGroup,
-  Cell,
-  Loading,
-  Toast,
-  Dialog,
-  Collapse,
-  CollapseItem,
-} from "vant";
+import { Toast, Dialog } from "vant";
 
 // 在开发环境和测试环境中启用 VConsole
 if (["development", "test"].includes(process.env.VUE_APP_ENV)) {
@@ -26,23 +14,11 @@ if (["development", "test"].includes(process.env.VUE_APP_ENV)) {
 
 // Vant 组件
 const vantComponents = {
-  Button: Button,
-  NavBar: NavBar,
-  Tabbar: Tabbar,
-  TabbarItem: TabbarItem,
-  Form: Form,
-  Field: Field,
-  CellGroup: CellGroup,
-  Cell: Cell,
-  Loading: Loading,
   Toast: Toast,
   Dialog: Dialog,
-  Collapse: Collapse,
-  CollapseItem: CollapseItem,
 };
 
 // 引入 Vant 样式
-import "vant/lib/index.css";
 import "./styles/base.css";
 import "./styles/tailwind.css";
 

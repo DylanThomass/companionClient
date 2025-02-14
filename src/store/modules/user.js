@@ -9,8 +9,8 @@ export const useUserStore = defineStore("user", {
 
   actions: {
     // 开发环境使用
-    setUserInfo(info) {
-      this.userInfo = info;
+    setUserInfo(userInfo) {
+      this.userInfo = userInfo;
     },
 
     setToken(token) {

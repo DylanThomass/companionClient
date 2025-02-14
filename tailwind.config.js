@@ -1,11 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
-  // 确保不会覆盖 Vant 的样式
+  content: ["./src/**/*.{vue,js,ts,jsx,tsx}"],
+  // 确保不会影响 Vant 的样式
   corePlugins: {
     preflight: false,
   },
-  important: true,
   theme: {
     extend: {
       colors: {

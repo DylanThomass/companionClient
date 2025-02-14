@@ -55,6 +55,7 @@ import { computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { showToast, showDialog } from "vant";
 import { useUserStore } from "@/store/modules/user";
+import testAvatar from "@/assets/test/HeadImg.jpg";
 
 const router = useRouter();
 const route = useRoute();
@@ -133,10 +134,10 @@ const handleWxLogin = () => {
       province: "广东",
       city: "深圳",
       country: "中国",
-      headimgurl:
-        "https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTLB34sBwSiaL3GJk0EWtpqT9y8Zw3qvCmZZsGbHXjs3HhicUgicjxqKhWkJqDHRrH0ibFLQxFZLEuLYxw/132",
+      headimgurl: testAvatar,
       privilege: [],
     };
+    console.log("Mock user info:", mockUserInfo); // 检查 testAvatar 是否正确导入
     userStore.setUserInfo(mockUserInfo);
     userStore.setToken("dev_token");
     router.replace("/");

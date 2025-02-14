@@ -39,6 +39,15 @@ const routes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "/user/edit",
+    name: "UserEdit",
+    component: () => import("@/views/UserEdit.vue"),
+    meta: {
+      title: "编辑资料",
+      requiresAuth: true,
+    },
+  },
 ];
 
 const router = createRouter({

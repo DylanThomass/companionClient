@@ -17,12 +17,13 @@ const userStore = useUserStore();
 onMounted(async () => {
   try {
     const { code, state } = route.query;
+    console.log("code", code);
 
     if (!code) {
       throw new Error("未获取到授权码");
     }
 
-    await userStore.login(code);
+    // await userStore.login(code);
     // await nextTick();
 
     if (!userStore.isLoggedIn) {

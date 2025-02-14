@@ -48,6 +48,15 @@ const routes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "/tags-manage",
+    name: "TagsManage",
+    component: () => import("@/views/TagsManage.vue"),
+    meta: {
+      title: "个性标签",
+      requiresAuth: true,
+    },
+  },
 ];
 
 const router = createRouter({

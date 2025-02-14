@@ -499,6 +499,11 @@ const handleClearCache = () => {
     .catch(() => {});
 };
 
+// 标签管理
+const handleManageTags = () => {
+  router.push("/tags-manage");
+};
+
 const onImageError = (error) => {
   console.error("Image load error:", error);
 };

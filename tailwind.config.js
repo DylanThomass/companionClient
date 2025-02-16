@@ -76,6 +76,12 @@ module.exports = {
             to: "hsl(260,25%,55%)", // 更深的淡紫
           },
         },
+        silver: {
+          500: "#94A3B8",
+        },
+        bronze: {
+          500: "#B45309",
+        },
       },
       borderRadius: {
         design: "16px", // 更大的圆角
@@ -89,6 +95,9 @@ module.exports = {
         body: "1rem",
         title: "1.25rem",
         headline: "1.5rem",
+      },
+      borderWidth: {
+        3: "3px",
       },
     },
   },

@@ -3,6 +3,13 @@ import { showToast } from "vant";
 import { useUserStore } from "@/store/modules/user";
 import router from "@/router";
 
+// 不需要携带 token 的白名单
+const NO_TOKEN_WHITELIST = [
+  "/wx/config", // 微信配置接口
+  "/wx/login", // 微信登录接口
+  "/health", // 健康检查接口
+];
+
 // 响应码
 const ResponseCode = {
   SUCCESS: "0000",
@@ -12,7 +19,7 @@ const ResponseCode = {
 };
 
 // 创建 axios 实例
-const request = axios.create({
+const service = axios.create({
   baseURL: process.env.VUE_APP_API_URL,
   timeout: 15000,
   headers: {
@@ -21,22 +28,39 @@ const request = axios.create({
 });
 
 // 请求拦截器
-request.interceptors.request.use(
+service.interceptors.request.use(
   (config) => {
     // 调试信息
     if (process.env.NODE_ENV === "development") {
       console.log("Request:", {
         url: config.url,
+        fullUrl: `${config.baseURL}${config.url}`,
         method: config.method,
         data: config.data,
         params: config.params,
+        headers: config.headers,
       });
     }
 
+    // 从 store 获取 token
     const userStore = useUserStore();
-    if (userStore.token) {
-      config.headers["Authorization"] = `Bearer ${userStore.token}`;
+    const token = userStore.token;
+
+    // 检查是否在白名单中
+    const isInWhitelist = NO_TOKEN_WHITELIST.some((path) =>
+      config.url.includes(path)
+    );
+
+    // 开发环境且使用 mock 数据时，不添加 token
+    const useMock =
+      process.env.NODE_ENV === "development" &&
+      process.env.VUE_APP_USE_MOCK === "true";
+
+    // 如果不在白名单中且有 token，则添加到请求头
+    if (!isInWhitelist && token && !useMock) {
+      config.headers["Authorization"] = token ? `Bearer ${token}` : "";
     }
+
     return config;
   },
   (error) => {
@@ -46,7 +70,7 @@ request.interceptors.request.use(
 );
 
 // 响应拦截器
-request.interceptors.response.use(
+service.interceptors.response.use(
   (response) => {
     // 调试信息
     if (process.env.NODE_ENV === "development") {
@@ -88,8 +112,24 @@ request.interceptors.response.use(
     return res.data;
   },
   (error) => {
+    // 网络错误特殊处理
+    if (error.message === "Network Error") {
+      console.error("网络连接失败，请检查网络设置或服务器状态");
+      console.error("详细错误信息:", {
+        url: error.config.url,
+        method: error.config.method,
+        headers: error.config.headers,
+        data: error.config.data,
+        baseURL: error.config.baseURL,
+      });
+      showToast({
+        message: "网络连接失败，请检查网络",
+        type: "fail",
+      });
+    }
+
     // 网络错误处理
-    let message = "请求失败";
+    let message;
     if (error.response) {
       message = error.response.data?.msg || `错误码: ${error.response.status}`;
     } else if (error.request) {
@@ -118,4 +158,4 @@ request.interceptors.response.use(
   }
 );
 
-export default request;
+export default service;

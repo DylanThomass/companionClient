@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div class="app">
     <van-nav-bar
       :title="appTitle"
       left-arrow
@@ -11,48 +11,24 @@
     <router-view v-slot="{ Component }">
       <component :is="Component" />
     </router-view>
-
-    <van-tabbar v-model="activeTab" v-if="showTabbar">
-      <van-tabbar-item
-        v-for="tab in tabs"
-        :key="tab.path"
-        :icon="tab.icon"
-        :to="tab.path"
-      >
-        {{ tab.text }}
-      </van-tabbar-item>
-    </van-tabbar>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { initWxConfig, isWxEnv } from "@/utils/wx-sdk";
+import { showToast } from "vant";
 
 // 应用配置
 const appTitle = process.env.VUE_APP_TITLE || "Companion";
 
-// 标签栏配置
-const tabs = [
-  { path: "/", icon: "home-o", text: "首页" },
-  { path: "/user", icon: "user-o", text: "我的" },
-];
-
 const router = useRouter();
 const route = useRoute();
-const activeTab = ref(0);
-
-// 控制标签栏显示
-const showTabbar = computed(() => {
-  // 在登录页和授权页不显示标签栏
-  const hiddenPaths = ["/login", "/wx-auth"];
-  return !hiddenPaths.includes(route.path);
-});
 
 const onClickLeft = () => {
   // 如果是首页，不显示返回按钮
-  if (route.path === "/") {
+  if (["/", "/hall", "/orders", "/user"].includes(route.path)) {
     return;
   }
   router.back();
@@ -68,7 +44,11 @@ onMounted(async () => {
     }
 
     // 获取当前页面 URL，不包含 hash
-    const url = window.location.href.split("#")[0];
+    const url =
+      process.env.NODE_ENV === "development"
+        ? window.location.href.split("#")[0].replace("https://", "http://")
+        : window.location.href.split("#")[0];
+
     await initWxConfig(url, [
       "updateAppMessageShareData",
       "updateTimelineShareData",
@@ -77,15 +57,28 @@ onMounted(async () => {
     ]);
     console.log("微信配置初始化完成");
   } catch (error) {
-    console.error("App.vue 中微信配置初始化失败:", error);
+    console.error("微信配置初始化失败:", {
+      message: error.message,
+      config: error.config,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+
+    // 如果不是开发环境，显示友好的错误提示
+    if (process.env.NODE_ENV !== "development") {
+      showToast({
+        message: "微信初始化失败，请刷新重试",
+        type: "fail",
+      });
+    }
   }
 });
 </script>
 
 <style>
-#app {
+.app {
   min-height: 100vh;
-  background-color: #f7f8fa;
+  background-color: #f8f9fa;
 }
 
 .fade-enter-active,

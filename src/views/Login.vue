@@ -125,7 +125,7 @@ const handleViewPrivacy = () => {
 // 微信登录
 const handleWxLogin = () => {
   // 开发环境直接模拟登录
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === "development1") {
     // 开发环境模拟数据
     const mockUserInfo = {
       openid: "oZdZL6hs_Jn4yFiJ2GWUuQyR0DhE",

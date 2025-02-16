@@ -1,21 +1,25 @@
 <template>
-  <div class="wx-auth">
-    <van-loading type="spinner" vertical>登录中...</van-loading>
+  <div class="min-h-screen bg-surface-50 flex items-center justify-center">
+    <van-loading type="spinner" color="#14b8a6" size="36" vertical>
+      {{ loadingText }}
+    </van-loading>
   </div>
 </template>
 
 <script setup>
-import { onMounted, nextTick } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { useUserStore } from "@/store/modules/user";
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { showToast } from "vant";
+import { useUserStore } from "@/store/modules/user";
 
-const router = useRouter();
 const route = useRoute();
+const router = useRouter();
 const userStore = useUserStore();
+const loadingText = ref("正在登录...");
 
 onMounted(async () => {
   try {
+    // 获取 URL 中的 code 参数
     const { code, state } = route.query;
     console.log("code", code);
 
@@ -23,30 +27,28 @@ onMounted(async () => {
       throw new Error("未获取到授权码");
     }
 
-    if (!userStore.isLoggedIn) {
-      throw new Error("登录状态更新失败");
-    }
+    // 调用微信登录接口
+    const data = await userStore.login(code);
 
-    showToast({ message: "登录成功" });
+    // 保存用户信息和 token
+    userStore.setUserInfo(data.userInfo);
+    userStore.setToken(data.token);
 
-    // 调试信息
-    console.log("微信授权成功：", {
-      code,
-      state,
-      userInfo: userStore.userInfo,
-      token: userStore.token,
-      isLoggedIn: userStore.isLoggedIn,
-    });
-
-    // 确保登录成功后跳转到首页
-    router.replace("/");
+    // 跳转到原来的页面或首页
+    const redirect = "/";
+    router.replace(redirect);
   } catch (error) {
     console.error("微信登录失败:", error);
+    loadingText.value = "登录失败";
     showToast({
-      message: error.message || "登录失败",
+      message: "登录失败，请重试",
       type: "fail",
     });
-    router.replace("/login");
+
+    // 3秒后跳转到登录页
+    setTimeout(() => {
+      router.replace("/login");
+    }, 3000);
   }
 });
 </script>

@@ -5,12 +5,43 @@ import { useUserStore } from "@/store/modules/user";
 const routes = [
   {
     path: "/",
-    name: "Home",
-    component: () => import("@/views/Home.vue"),
+    component: () => import("@/layouts/TabbarLayout.vue"),
     meta: {
-      title: "首页",
-      requiresAuth: true,
+      requiresAuth: false,
     },
+    children: [
+      {
+        path: "",
+        redirect: "/hall",
+      },
+      {
+        path: "hall",
+        name: "SellerHall",
+        component: () => import("@/views/SellerHall.vue"),
+        meta: {
+          title: "店员大厅",
+          requiresAuth: true,
+        },
+      },
+      {
+        path: "orders",
+        name: "OrderList",
+        component: () => import("@/views/OrderList.vue"),
+        meta: {
+          title: "订单管理",
+          requiresAuth: true,
+        },
+      },
+      {
+        path: "user",
+        name: "User",
+        component: () => import("@/views/UserInfo.vue"),
+        meta: {
+          title: "个人中心",
+          requiresAuth: false,
+        },
+      },
+    ],
   },
   {
     path: "/login",
@@ -28,15 +59,6 @@ const routes = [
     meta: {
       title: "微信授权",
       requiresAuth: false,
-    },
-  },
-  {
-    path: "/user",
-    name: "User",
-    component: () => import("@/views/UserInfo.vue"),
-    meta: {
-      title: "个人中心",
-      requiresAuth: true,
     },
   },
   {
@@ -58,20 +80,29 @@ const routes = [
     },
   },
   {
-    path: "/orders",
-    name: "OrderList",
-    component: () => import("@/views/OrderList.vue"),
-    meta: {
-      title: "订单管理",
-      requiresAuth: true,
-    },
-  },
-  {
     path: "/order/:id",
     name: "OrderDetail",
     component: () => import("@/views/OrderDetail.vue"),
     meta: {
       title: "订单详情",
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/favorites",
+    name: "FavoriteList",
+    component: () => import("@/views/FavoriteList.vue"),
+    meta: {
+      title: "我的收藏",
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/seller/:id",
+    name: "SellerDetail",
+    component: () => import("@/views/SellerDetail.vue"),
+    meta: {
+      title: "店员详情",
       requiresAuth: true,
     },
   },
@@ -89,6 +120,15 @@ router.beforeEach((to, from, next) => {
 
   const userStore = useUserStore();
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+
+  // 开发环境且配置跳过鉴权时，直接通过
+  if (
+    process.env.NODE_ENV === "development" &&
+    process.env.VUE_APP_SKIP_AUTH === "true"
+  ) {
+    next();
+    return;
+  }
 
   // 调试信息
   console.log("路由守卫:", {

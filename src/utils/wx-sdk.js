@@ -1,11 +1,44 @@
 import wx from "weixin-js-sdk";
 import { getWxConfig } from "@/api/wx";
 
+const WX_CONFIG_CACHE_KEY = "wx_js_config";
+const CONFIG_EXPIRE_TIME = 7100 * 1000; // 微信 config 有效期为 7200s，留 100s 余量
+
 // 默认的 JS 接口列表
 const DEFAULT_JS_API_LIST = [
   "updateAppMessageShareData",
   "updateTimelineShareData",
 ];
+
+// 从缓存获取配置
+const getConfigFromCache = (url) => {
+  const cached = localStorage.getItem(WX_CONFIG_CACHE_KEY);
+  if (!cached) return null;
+
+  try {
+    const { timestamp, config } = JSON.parse(cached);
+    // 检查是否过期和 URL 是否匹配
+    if (Date.now() - timestamp < CONFIG_EXPIRE_TIME && config.url === url) {
+      return config;
+    }
+  } catch (error) {
+    console.error("解析缓存的微信配置失败:", error);
+  }
+  return null;
+};
+
+// 保存配置到缓存
+const saveConfigToCache = (url, config) => {
+  try {
+    const cacheData = {
+      timestamp: Date.now(),
+      config: { ...config, url },
+    };
+    localStorage.setItem(WX_CONFIG_CACHE_KEY, JSON.stringify(cacheData));
+  } catch (error) {
+    console.error("保存微信配置到缓存失败:", error);
+  }
+};
 
 /**
  * 检查是否在微信环境
@@ -33,29 +66,59 @@ export async function initWxConfig(url, jsApiList = DEFAULT_JS_API_LIST) {
       return;
     }
 
+    // 尝试从缓存获取配置
+    const cachedConfig = getConfigFromCache(url);
+    if (cachedConfig) {
+      console.log("使用缓存的微信配置");
+      return new Promise((resolve, reject) => {
+        wx.config({
+          debug: process.env.NODE_ENV === "development",
+          ...cachedConfig,
+          jsApiList,
+        });
+
+        wx.ready(() => {
+          console.log("微信配置成功（使用缓存）");
+          resolve();
+        });
+
+        wx.error((err) => {
+          console.error("微信配置失败（使用缓存）:", err);
+          // 配置失败时清除缓存
+          localStorage.removeItem(WX_CONFIG_CACHE_KEY);
+          reject(err);
+        });
+      });
+    }
+
+    // 获取微信配置
     const data = await getWxConfig(url);
 
-    wx.config({
-      debug: process.env.NODE_ENV === "development",
+    // 保存配置到缓存
+    saveConfigToCache(url, {
       appId: data.appId,
       timestamp: data.timestamp,
       nonceStr: data.nonceStr,
       signature: data.signature,
-      jsApiList,
-      openTagList: ["wx-open-launch-weapp"], // 开放标签，用于跳转小程序
     });
 
     return new Promise((resolve, reject) => {
+      wx.config({
+        debug: process.env.NODE_ENV === "development",
+        appId: data.appId,
+        timestamp: data.timestamp,
+        nonceStr: data.nonceStr,
+        signature: data.signature,
+        jsApiList,
+      });
+
       wx.ready(() => {
-        console.log("微信 JS-SDK 配置成功");
+        console.log("微信配置成功");
         resolve();
       });
+
       wx.error((err) => {
-        console.error("微信 JS-SDK 配置失败:", {
-          url,
-          error: err,
-          config: data,
-        });
+        console.error("微信配置失败:", err);
         reject(err);
       });
     });

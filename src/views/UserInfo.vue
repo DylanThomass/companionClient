@@ -340,7 +340,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/modules/user";
 import { showToast, showDialog } from "vant";
@@ -352,9 +352,35 @@ const activeNames = ref([]);
 // 是否为开发环境
 const isDev = computed(() => process.env.NODE_ENV === "development");
 
+// 获取用户信息
+const getUserInfo = async () => {
+  try {
+    const data = await userStore.getUserInfo();
+    console.log("getUserInfo", data);
+    // if (data) {
+    //   userStore.setUserInfo(data);
+    // }
+  } catch (error) {
+    console.error("获取用户信息失败:", error);
+    showToast({
+      message: "获取用户信息失败",
+      type: "fail",
+    });
+  }
+};
+
+onMounted(async () => {
+  if (!userStore.openid) {
+    console.log("openid 为空，跳过获取用户信息");
+    // return;
+  }
+  await getUserInfo();
+});
+
 // 头像地址
 const avatarUrl = computed(() => {
-  return userStore.userInfo?.headimgurl;
+  console.log("avatarUrl", userStore.userInfo?.headimgurl);
+  return userStore.userInfo?.avatarUrl;
 });
 
 // 用户等级信息

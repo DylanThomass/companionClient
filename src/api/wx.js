@@ -1,5 +1,8 @@
 import request from "@/utils/request";
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 2000;
+
 /**
  * 微信登录
  * @param {string} code - 微信授权码
@@ -17,11 +20,28 @@ export function wxLogin(code) {
  * @param {string} url - 当前页面 URL
  */
 export function getWxConfig(url) {
-  return request({
-    url: "/wx/config",
-    method: "get",
-    params: { url },
-  });
+  let retries = 0;
+
+  const tryGetConfig = async () => {
+    try {
+      const response = await request({
+        url: "/wx/config",
+        method: "post",
+        data: { url },
+      });
+      return response;
+    } catch (error) {
+      if (error.message === "Network Error" && retries < MAX_RETRIES) {
+        retries++;
+        console.log(`网络错误，第 ${retries} 次重试...`);
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+        return tryGetConfig();
+      }
+      throw error;
+    }
+  };
+
+  return tryGetConfig();
 }
 
 /**

@@ -28,7 +28,7 @@ const route = useRoute();
 
 const onClickLeft = () => {
   // 如果是首页，不显示返回按钮
-  if (["/", "/hall", "/orders", "/user"].includes(route.path)) {
+  if (["/", "/hall", "/user"].includes(route.path)) {
     return;
   }
   router.back();

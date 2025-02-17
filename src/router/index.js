@@ -24,15 +24,6 @@ const routes = [
         },
       },
       {
-        path: "orders",
-        name: "OrderList",
-        component: () => import("@/views/OrderList.vue"),
-        meta: {
-          title: "订单管理",
-          requiresAuth: true,
-        },
-      },
-      {
         path: "user",
         name: "User",
         component: () => import("@/views/UserInfo.vue"),
@@ -42,6 +33,15 @@ const routes = [
         },
       },
     ],
+  },
+  {
+    path: "/orders",
+    name: "OrderList",
+    component: () => import("@/views/OrderList.vue"),
+    meta: {
+      title: "订单管理",
+      requiresAuth: true,
+    },
   },
   {
     path: "/login",
@@ -103,6 +103,15 @@ const routes = [
     component: () => import("@/views/SellerDetail.vue"),
     meta: {
       title: "店员详情",
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/seller/customize",
+    name: "SellerCustomize",
+    component: () => import("@/views/SellerCustomize.vue"),
+    meta: {
+      title: "装修主页",
       requiresAuth: true,
     },
   },

@@ -32,7 +32,7 @@
     "sass": "^1.69.7",
     "sass-loader": "^13.3.3",
     "tailwindcss": "^3.3.0",
-    "unplugin-vue-components": "^0.26.0"
+    "unplugin-vue-components": "^0.25.2"
   },
   "eslintConfig": {
     "root": true,

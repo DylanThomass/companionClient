@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 0;
 const RETRY_DELAY = 2000;
 
 /**

@@ -8,7 +8,6 @@
     <!-- 底部导航栏 -->
     <van-tabbar v-model="active" route class="safe-area-bottom">
       <van-tabbar-item to="/hall" icon="shop-o">店员大厅</van-tabbar-item>
-      <van-tabbar-item to="/orders" icon="orders-o">我的订单</van-tabbar-item>
       <van-tabbar-item to="/user" icon="user-o">个人中心</van-tabbar-item>
     </van-tabbar>
   </div>

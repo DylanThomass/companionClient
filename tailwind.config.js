@@ -37,6 +37,15 @@ module.exports = {
             DEFAULT: "#9333ea",
           },
         },
+        success: {
+          50: "#F0FDF4",
+          100: "#DCFCE7",
+          200: "#BBF7D0",
+          300: "#86EFAC",
+          400: "#4ADE80",
+          500: "#22C55E",
+          600: "#16A34A",
+        },
         danger: {
           50: "#fef2f2",
           100: "#fee2e2",

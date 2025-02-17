@@ -60,6 +60,31 @@
               @click="showArea = true"
               class="custom-field"
             />
+            <template v-if="userStore.isSeller">
+              <van-field
+                v-model="formData.birthday"
+                label="出生日期"
+                placeholder="请选择出生日期"
+                readonly
+                is-link
+                @click="showBirthdayPicker = true"
+                :rules="[{ required: true, message: '请选择出生日期' }]"
+              />
+              <van-field
+                v-model="formData.bio"
+                label="个性签名"
+                type="textarea"
+                rows="3"
+                placeholder="介绍一下自己吧"
+                :rules="[{ required: true, message: '请输入个性签名' }]"
+              >
+                <template #extra>
+                  <div class="text-xs text-surface-400">
+                    {{ formData.bio.length }}/50
+                  </div>
+                </template>
+              </van-field>
+            </template>
           </van-cell-group>
           <div class="p-6">
             <van-button
@@ -88,6 +113,17 @@
         :columns-num="2"
       />
     </van-popup>
+
+    <!-- 生日选择器 -->
+    <van-popup v-model:show="showBirthdayPicker" position="bottom" round>
+      <van-picker
+        title="选择出生日期"
+        :columns="dateColumns"
+        @confirm="onBirthdayConfirm"
+        @cancel="showBirthdayPicker = false"
+        show-toolbar
+      />
+    </van-popup>
   </div>
 </template>
 
@@ -114,9 +150,13 @@ const formData = ref({
   location: userStore.userInfo?.province
     ? `${userStore.userInfo.province} ${userStore.userInfo.city}`
     : "",
+  birthday: userStore.userInfo?.birthday || "1995-01-01",
+  bio:
+    userStore.userInfo?.bio || "专注于倾听和陪伴，让每一次对话都充满温暖和治愈",
 });
 
 const showArea = ref(false);
+const showBirthdayPicker = ref(false);
 const submitting = ref(false);
 
 // 头像地址
@@ -158,6 +198,41 @@ const handleEditAvatar = () => {
   });
 };
 
+// 生成年月日选择器的列
+const generateDateColumns = () => {
+  const years = Array.from({ length: 36 }, (_, i) => 1970 + i).map((year) => ({
+    text: `${year}年`,
+    value: year,
+  }));
+
+  const months = Array.from({ length: 12 }, (_, i) => i + 1).map((month) => ({
+    text: `${month}月`,
+    value: month,
+  }));
+
+  const days = Array.from({ length: 31 }, (_, i) => i + 1).map((day) => ({
+    text: `${day}日`,
+    value: day,
+  }));
+
+  return [years, months, days];
+};
+
+const dateColumns = ref(generateDateColumns());
+
+// 处理生日选择
+const onBirthdayConfirm = (values) => {
+  const [yearObj, monthObj, dayObj] = values;
+  const year = yearObj.value;
+  const month = monthObj.value;
+  const day = dayObj.value;
+
+  formData.value.birthday = `${year}-${String(month).padStart(2, "0")}-${String(
+    day
+  ).padStart(2, "0")}`;
+  showBirthdayPicker.value = false;
+};
+
 // 提交表单
 const onSubmit = async () => {
   submitting.value = true;
@@ -170,6 +245,8 @@ const onSubmit = async () => {
       sex: formData.value.sex,
       province: formData.value.province,
       city: formData.value.city,
+      birthday: userStore.isSeller ? formData.value.birthday : undefined,
+      bio: userStore.isSeller ? formData.value.bio : undefined,
     });
     showToast({
       message: "保存成功",

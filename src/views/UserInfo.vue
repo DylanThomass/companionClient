@@ -1,13 +1,13 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-surface-50 to-surface-100">
     <!-- 用户信息卡片 -->
-    <div class="relative px-6 pt-12">
+    <div class="relative px-6">
       <!-- 头像和昵称区域 -->
-      <div class="relative z-10">
+      <div class="relative z-10 pt-12">
         <!-- 装饰背景 -->
-        <div class="absolute -top-6 -left-6 -right-6 h-48">
+        <div class="absolute top-0 -left-6 -right-6 h-48">
           <div
-            class="absolute inset-0 bg-gradient-to-br from-teal-400 via-cyan-500 to-brand-500"
+            class="absolute inset-0 bg-gradient-to-br from-teal-400 via-cyan-500 to-brand-500 h-56"
           >
             <!-- 添加一个柔和的渐变遮罩 -->
             <div
@@ -15,14 +15,44 @@
             ></div>
             <!-- 底部过渡效果 -->
             <div
-              class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white via-white/90 to-transparent"
+              class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white via-white/90 to-transparent"
             ></div>
+          </div>
+        </div>
+
+        <!-- 在线状态卡片 -->
+        <div class="absolute top-6 inset-x-0 z-20">
+          <div class="bg-white/95 backdrop-blur rounded-xl p-3 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <span
+                  class="w-2 h-2 rounded-full mr-2"
+                  :class="[
+                    online ? 'bg-success-500 animate-pulse' : 'bg-surface-300',
+                  ]"
+                />
+                <span class="text-base font-medium">{{
+                  online ? "在线接单" : "暂停接单"
+                }}</span>
+              </div>
+              <van-switch
+                v-model="online"
+                size="20px"
+                active-color="#10b981"
+                @change="handleOnlineChange"
+              />
+            </div>
+            <div class="mt-1 text-xs text-surface-500">
+              {{
+                online ? "当前状态：可以接受新的订单" : "当前状态：暂时无法接单"
+              }}
+            </div>
           </div>
         </div>
 
         <!-- 用户信息内容 -->
         <div
-          class="relative bg-white rounded-2xl px-6 py-4 shadow-lg overflow-hidden"
+          class="relative bg-white rounded-2xl p-4 shadow-lg overflow-hidden mt-20"
         >
           <!-- 性别标识 -->
           <div
@@ -191,16 +221,7 @@
             {{ userStats.todaySignIn ? "已签到" : "每日签到" }}
           </div>
         </div>
-        <!-- 成为店员 -->
-        <div
-          class="bg-white rounded-xl p-4 shadow-lg text-center cursor-pointer hover:shadow-xl transition-shadow duration-300"
-          @click="handleBecomeSeller"
-        >
-          <van-icon name="shop-o" class="text-2xl text-brand-500" />
-          <div class="mt-2 text-sm text-surface-600 whitespace-nowrap">
-            成为店员
-          </div>
-        </div>
+
         <!-- 标签管理 -->
         <div
           class="bg-white rounded-xl p-4 shadow-lg text-center cursor-pointer hover:shadow-xl transition-shadow duration-300"
@@ -211,20 +232,51 @@
             标签管理
           </div>
         </div>
+        <!-- 根据角色显示不同按钮 -->
+        <div
+          class="bg-white rounded-xl p-4 shadow-lg text-center cursor-pointer hover:shadow-xl transition-shadow duration-300"
+          @click="handleUserAction"
+        >
+          <van-icon
+            :name="userStore.isSeller ? 'setting-o' : 'shop-collect-o'"
+            class="text-2xl text-brand-500"
+          />
+          <div class="mt-2 text-sm text-surface-600 whitespace-nowrap">
+            {{ userStore.isSeller ? "装修主页" : "成为店员" }}
+          </div>
+        </div>
       </div>
 
       <!-- 功能模块 -->
       <div class="mt-6 grid grid-cols-2 gap-4">
         <!-- 订单与收藏 -->
         <div class="bg-white rounded-2xl p-4 shadow-lg">
-          <div class="text-sm text-surface-500 mb-3">订单与收藏</div>
+          <div class="text-sm text-surface-500 mb-3">
+            {{ userStore.isSeller ? "店员中心" : "订单与收藏" }}
+          </div>
           <div class="space-y-2">
+            <!-- 店员专属功能 -->
+            <template v-if="userStore.isSeller">
+              <div
+                class="flex items-center p-3 bg-feature-income-light/20 rounded-xl cursor-pointer hover:bg-feature-income-light/30 transition-colors duration-300"
+                @click="handleIncome"
+              >
+                <van-icon
+                  name="balance-o"
+                  class="text-xl text-feature-income"
+                />
+                <span class="ml-2 text-surface-600 text-sm">收入统计</span>
+                <van-icon name="arrow" class="ml-auto text-surface-400" />
+              </div>
+            </template>
+
+            <!-- 通用功能 -->
             <div
               class="flex items-center p-3 bg-feature-order-light/20 rounded-xl cursor-pointer hover:bg-feature-order-light/30 transition-colors duration-300"
               @click="handleOrders"
             >
               <van-icon name="orders-o" class="text-xl text-feature-order" />
-              <span class="ml-2 text-surface-600 text-sm">订单管理</span>
+              <span class="ml-2 text-surface-600 text-sm">我的订单</span>
               <van-icon name="arrow" class="ml-auto text-surface-400" />
             </div>
             <div
@@ -399,12 +451,19 @@ const userLevel = computed(() => {
 
 // 用户统计信息
 const userStats = ref({
-  // TODO: 从后端获取用户统计数据
   balance: 520.0,
   coupons: 3,
   signInDays: 7,
   inviteCount: 3,
   todaySignIn: false,
+});
+
+// 店员统计信息
+const sellerStats = ref({
+  pendingOrders: 5, // 待处理订单数
+  todayIncome: 888, // 今日收入
+  monthIncome: 6666, // 本月收入
+  totalIncome: 88888, // 总收入
 });
 
 // 用户标签
@@ -415,6 +474,9 @@ const userTags = ref([
   "倾听者",
   "温暖治愈",
 ]);
+
+// 在线状态
+const online = ref(true);
 
 // 签到
 const handleSignIn = () => {
@@ -530,8 +592,61 @@ const handleManageTags = () => {
   router.push("/tags-manage");
 };
 
+// 装修主页
+const handleCustomizeHomepage = () => {
+  router.push("/seller/customize");
+};
+
+// 店员订单管理
+const handleSellerOrders = () => {
+  router.push("/seller/orders");
+};
+
+// 收入统计
+const handleIncome = () => {
+  router.push("/seller/income");
+};
+
 const onImageError = (error) => {
   console.error("Image load error:", error);
+};
+
+// 处理店员相关动作
+const handleUserAction = () => {
+  if (userStore.isSeller) {
+    // 已是店员，跳转到装修页面
+    router.push("/seller/customize");
+  } else {
+    // 不是店员，显示申请对话框
+    handleBecomeSeller();
+  }
+};
+
+// 处理在线状态变更
+const handleOnlineChange = async (value) => {
+  try {
+    // TODO: 调用后端接口更新在线状态
+    await updateOnlineStatus(value);
+    showToast({
+      message: value ? "已切换为在线状态" : "已切换为离线状态",
+      type: "success",
+    });
+  } catch (error) {
+    console.error("更新在线状态失败:", error);
+    online.value = !value; // 恢复状态
+    showToast({
+      message: "状态更新失败",
+      type: "fail",
+    });
+  }
+};
+
+// 更新在线状态的 API 调用
+const updateOnlineStatus = async (status) => {
+  // TODO: 实现在线状态更新接口
+  return new Promise((resolve) => {
+    setTimeout(resolve, 500);
+  });
 };
 </script>
 

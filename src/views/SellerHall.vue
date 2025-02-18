@@ -191,91 +191,89 @@
     </div>
 
     <!-- 店员列表 -->
-    <div class="p-4">
-      <div class="text-lg font-medium text-surface-800 mb-4">全部店员</div>
-      <div class="space-y-4">
+    <div class="p-4 space-y-3">
+      <div
+        v-for="seller in filteredSellers"
+        :key="seller.id"
+        class="relative bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden"
+        @click="handleSellerClick(seller)"
+      >
+        <!-- 性别丝带 -->
         <div
-          v-for="seller in filteredSellers"
-          :key="seller.id"
-          class="bg-white rounded-2xl p-4 shadow-lg"
-          @click="router.push(`/seller/${seller.id}`)"
-        >
-          <div class="flex items-center">
-            <van-image
-              round
-              width="56"
-              height="56"
-              :src="seller.avatar"
-              class="border-2 border-white shadow-md"
-            />
-            <div class="ml-4 flex-1">
+          class="absolute bottom-5 -right-8 w-28 text-center py-1 text-xs font-medium transform rotate-45 shadow-sm"
+          :class="[
+            seller.gender === 2
+              ? 'bg-pink-500 text-white'
+              : 'bg-blue-500 text-white',
+          ]"
+        ></div>
+
+        <div class="flex items-start">
+          <!-- 头像部分 -->
+          <van-image
+            round
+            width="64"
+            height="64"
+            :src="seller.avatar"
+            class="flex-shrink-0 border-2 border-white shadow-sm"
+          />
+
+          <!-- 信息部分 -->
+          <div class="flex-1 ml-3">
+            <!-- 昵称和标签 -->
+            <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="text-lg font-medium text-surface-800">
                   {{ seller.name }}
                 </span>
-                <van-icon
-                  :name="seller.gender === 'female' ? 'like-o' : 'friends-o'"
-                  :class="
-                    seller.gender === 'female'
-                      ? 'text-pink-500'
-                      : 'text-blue-500'
-                  "
-                />
-                <van-rate
-                  v-model="seller.rating"
-                  :size="12"
-                  color="#f59e0b"
-                  void-icon="star"
-                  void-color="#e5e7eb"
-                  readonly
-                />
-                <van-icon
-                  v-if="seller.isFavorite"
-                  name="star"
-                  class="text-yellow-500 ml-auto"
-                  @click.stop="handleUnfavorite(seller)"
-                />
-                <van-icon
-                  v-else
-                  name="star-o"
-                  class="text-surface-400 ml-auto"
-                  @click.stop="handleFavorite(seller)"
-                />
-              </div>
-              <!-- 基本信息 -->
-              <div
-                class="flex items-center gap-3 mt-1 text-xs text-surface-400"
-              >
-                <span class="flex items-center gap-1">
-                  <van-icon name="location-o" />
-                  {{ seller.location }}
-                </span>
-                <span class="flex items-center gap-1">
-                  <van-icon name="star-o" />
-                  {{ seller.constellation }}
-                </span>
-              </div>
-              <!-- 备注信息 -->
-              <div
-                v-if="seller.note"
-                class="mt-1 text-xs text-surface-500 bg-surface-50 px-2 py-1 rounded-lg"
-              >
-                备注：{{ seller.note }}
-              </div>
-              <!-- 标签 -->
-              <div class="flex items-center gap-1 mt-1 overflow-hidden">
+                <!-- 等级标签 -->
                 <span
-                  v-for="tag in seller.tags?.slice(0, 2)"
-                  :key="tag"
-                  class="inline-block px-1.5 py-0.5 text-xs bg-surface-50 text-surface-500 rounded-full whitespace-nowrap overflow-hidden text-ellipsis"
-                  style="max-width: 4rem"
+                  class="px-1.5 py-0.5 bg-brand-50 text-brand-500 text-xs rounded-full transform -rotate-3"
                 >
-                  #{{ tag }}
+                  Lv.{{ seller.level }}
                 </span>
               </div>
+              <van-tag
+                :type="seller.online ? 'success' : 'default'"
+                size="medium"
+                round
+              >
+                {{ seller.online ? "在线" : "离线" }}
+              </van-tag>
             </div>
-            <div class="text-sm text-brand-500 font-medium">
-              Lv.{{ seller.level }}
+
+            <!-- 个性签名 -->
+            <div class="mt-1 text-sm text-surface-500 line-clamp-1">
+              {{ seller.bio || "这个人很懒，什么都没写~" }}
+            </div>
+
+            <!-- 基本信息 -->
+            <div class="mt-2 flex items-center text-sm text-surface-500">
+              <van-rate
+                v-model="seller.rating"
+                :size="12"
+                color="#f59e0b"
+                void-icon="star"
+                void-color="#e5e7eb"
+                readonly
+              />
+              <span class="ml-1">{{ seller.rating }}</span>
+              <span class="mx-2 text-surface-300">|</span>
+              <span class="flex items-center">
+                <van-icon name="star-o" class="mr-1" />
+                {{ seller.constellation }}
+              </span>
+            </div>
+
+            <!-- 标签 -->
+            <div class="mt-2 flex flex-wrap gap-1">
+              <span
+                v-for="tag in seller.tags?.slice(0, 3)"
+                :key="tag"
+                class="inline-block px-2 py-0.5 text-xs bg-surface-50 text-surface-500 rounded-full"
+              >
+                #{{ tag }}
+              </span>
             </div>
           </div>
         </div>
@@ -412,31 +410,25 @@ const hasActiveFilters = computed(() => {
 const sellers = ref([
   {
     id: 1,
-    name: "浅夏微凉",
-    tags: ["情感咨询", "温暖治愈", "倾听者"],
+    name: "治愈系店员",
     avatar: HeadImg1,
-    rating: 5,
-    orderCount: 238,
-    gender: "female",
+    rating: 4.8,
     level: 8,
-    location: "广东·深圳",
-    constellation: "双子座",
-    isFavorite: true,
-    note: "很温柔的小姐姐，声音很治愈",
+    gender: 1,
+    constellation: "天秤座",
+    bio: "专注于倾听和陪伴，让每一次对话都充满温暖和治愈",
+    tags: ["温暖贴心", "专业可靠", "倾听者", "治愈系"],
   },
   {
     id: 2,
-    name: "暖阳晴空",
-    tags: ["专业认证", "心理疏导", "耐心细致"],
+    name: "暖心小姐姐",
     avatar: HeadImg2,
     rating: 4.9,
-    orderCount: 186,
-    gender: "female",
-    level: 7,
-    location: "浙江·杭州",
-    constellation: "天秤座",
-    isFavorite: false,
-    note: null,
+    level: 12,
+    gender: 2,
+    constellation: "双子座",
+    bio: "一起分享生活中的点点滴滴，温暖相伴",
+    tags: ["细心", "有耐心", "情感专家"],
   },
   {
     id: 3,
@@ -516,6 +508,10 @@ const filteredSellers = computed(() => {
 const getSortIcon = (type) => {
   if (activeSort.value !== type) return "arrow-down";
   return sortOrder.value === "desc" ? "arrow-down" : "arrow-up";
+};
+
+const handleSellerClick = (seller) => {
+  router.push(`/seller/${seller.id}`);
 };
 
 // 切换排序

@@ -178,7 +178,6 @@ const onConfirmArea = ({ selectedOptions }) => {
   }
 
   const [province, city] = selectedOptions;
-
   formData.value.province = province.text;
   formData.value.city = city.text;
   formData.value.location = `${province.text} ${city.text}`;
@@ -222,11 +221,9 @@ const dateColumns = ref(generateDateColumns());
 
 // 处理生日选择
 const onBirthdayConfirm = (values) => {
-  const [yearObj, monthObj, dayObj] = values;
-  const year = yearObj.value;
-  const month = monthObj.value;
-  const day = dayObj.value;
-
+  console.log("onBirthdayConfirm", values);
+  const { selectedValues } = values;
+  const [year, month, day] = selectedValues;
   formData.value.birthday = `${year}-${String(month).padStart(2, "0")}-${String(
     day
   ).padStart(2, "0")}`;
@@ -240,14 +237,6 @@ const onSubmit = async () => {
     // TODO: 实现用户信息更新
     // 1. 调用后端更新接口
     // 2. 更新本地 store 数据
-    await userStore.updateUserInfo({
-      nickname: formData.value.nickname,
-      sex: formData.value.sex,
-      province: formData.value.province,
-      city: formData.value.city,
-      birthday: userStore.isSeller ? formData.value.birthday : undefined,
-      bio: userStore.isSeller ? formData.value.bio : undefined,
-    });
     showToast({
       message: "保存成功",
       type: "success",

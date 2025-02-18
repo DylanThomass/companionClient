@@ -20,67 +20,9 @@ export function wxLogin(code) {
  * @param {string} url - 当前页面 URL
  */
 export function getWxConfig(url) {
-  let retries = 0;
-
-  const tryGetConfig = async () => {
-    try {
-      const response = await request({
-        url: "/wx/config",
-        method: "post",
-        data: { url },
-      });
-      return response;
-    } catch (error) {
-      if (error.message === "Network Error" && retries < MAX_RETRIES) {
-        retries++;
-        console.log(`网络错误，第 ${retries} 次重试...`);
-        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
-        return tryGetConfig();
-      }
-      throw error;
-    }
-  };
-
-  return tryGetConfig();
-}
-
-/**
- * 微信分享配置
- * @param {Object} shareData - 分享配置
- * @param {string} shareData.title - 分享标题
- * @param {string} shareData.desc - 分享描述
- * @param {string} shareData.link - 分享链接
- * @param {string} shareData.imgUrl - 分享图片
- */
-export function configWxShare(shareData) {
-  const defaultConfig = {
-    title: process.env.VUE_APP_TITLE,
-    desc: "让温暖永远相伴",
-    link: window.location.href,
-    imgUrl: `${process.env.VUE_APP_BASE_URL}/logo.png`,
-  };
-
-  const config = { ...defaultConfig, ...shareData };
-
-  // 配置分享到朋友圈
-  wx.updateTimelineShareData({
-    ...config,
-    success: () => {
-      console.log("分享到朋友圈配置成功");
-    },
-    fail: (err) => {
-      console.error("分享到朋友圈配置失败:", err);
-    },
-  });
-
-  // 配置分享给朋友
-  wx.updateAppMessageShareData({
-    ...config,
-    success: () => {
-      console.log("分享给朋友配置成功");
-    },
-    fail: (err) => {
-      console.error("分享给朋友配置失败:", err);
-    },
+  return request({
+    url: "/wx/config",
+    method: "post",
+    data: { url },
   });
 }

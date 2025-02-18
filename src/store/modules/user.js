@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { wxLogin } from "@/api/wx";
 import { getUserInfo } from "@/api/user";
 import headImg from "@/assets/test/HeadImg-1.jpg";
-// Mock 数据
+// Mock 数据 - 店员
 const MOCK_USER_INFO = {
   id: 1001,
   openId: "o0Nbu7AX1_CpU3GSre5ShDs-SSPU",
@@ -34,13 +34,37 @@ const MOCK_USER_INFO = {
   },
 };
 
+// Mock 数据 - 普通用户
+const MOCK_NORMAL_USER = {
+  id: 1002,
+  openId: "o0Nbu7AX1_CpU3GSre5ShDs-NORM",
+  nickname: "暖心用户",
+  avatarUrl: headImg,
+  gender: 2, // 1-男 2-女
+  province: "广东",
+  city: "广州",
+  role: 1, // 1-普通用户 2-店员
+  stats: {
+    balance: 200.0,
+    coupons: 2,
+    signInDays: 3,
+    inviteCount: 1,
+    todaySignIn: false,
+  },
+  tags: ["积极乐观", "善解人意"],
+  level: {
+    exp: 280,
+    title: "初心者",
+  },
+};
+
 export const useUserStore = defineStore("user", {
   state: () => ({
     token: "",
     openid: "",
     userInfo: null,
-    // 用户角色: 1-普通用户 2-店员
-    role: process.env.VUE_APP_USE_MOCK === "true" ? MOCK_USER_INFO.role : 1,
+    // 默认使用普通用户数据
+    role: process.env.VUE_APP_USE_MOCK === "true" ? MOCK_NORMAL_USER.role : 1,
   }),
 
   actions: {
@@ -73,9 +97,10 @@ export const useUserStore = defineStore("user", {
         process.env.NODE_ENV === "development" &&
         process.env.VUE_APP_USE_MOCK === "true"
       ) {
-        this.userInfo = MOCK_USER_INFO;
-        this.role = MOCK_USER_INFO.role;
-        return MOCK_USER_INFO;
+        // 根据当前角色返回对应的 mock 数据
+        const mockData = this.role === 2 ? MOCK_USER_INFO : MOCK_NORMAL_USER;
+        this.userInfo = mockData;
+        return mockData;
       }
 
       if (!this.openid) {
@@ -86,6 +111,17 @@ export const useUserStore = defineStore("user", {
       this.userInfo = data;
       this.role = data.role;
       return data;
+    },
+
+    // 切换测试用户类型
+    toggleUserType() {
+      if (this.role === 1) {
+        this.userInfo = MOCK_USER_INFO;
+        this.role = 2;
+      } else {
+        this.userInfo = MOCK_NORMAL_USER;
+        this.role = 1;
+      }
     },
   },
 

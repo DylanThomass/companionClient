@@ -1,5 +1,17 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-surface-50 to-surface-100">
+    <!-- 开发环境测试按钮 -->
+    <div v-if="isDev" class="fixed bottom-20 right-4 z-50">
+      <van-button
+        round
+        size="small"
+        type="primary"
+        @click="userStore.toggleUserType()"
+      >
+        切换用户类型
+      </van-button>
+    </div>
+
     <!-- 用户信息卡片 -->
     <div class="relative px-6">
       <!-- 头像和昵称区域 -->
@@ -20,54 +32,19 @@
           </div>
         </div>
 
-        <!-- 在线状态卡片 -->
-        <div class="absolute top-6 inset-x-0 z-20">
-          <div class="bg-white/95 backdrop-blur rounded-xl p-3 shadow-lg">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <span
-                  class="w-2 h-2 rounded-full mr-2"
-                  :class="[
-                    online ? 'bg-success-500 animate-pulse' : 'bg-surface-300',
-                  ]"
-                />
-                <span class="text-base font-medium">{{
-                  online ? "在线接单" : "暂停接单"
-                }}</span>
-              </div>
-              <van-switch
-                v-model="online"
-                size="20px"
-                active-color="#10b981"
-                @change="handleOnlineChange"
-              />
-            </div>
-            <div class="mt-1 text-xs text-surface-500">
-              {{
-                online ? "当前状态：可以接受新的订单" : "当前状态：暂时无法接单"
-              }}
-            </div>
-          </div>
-        </div>
-
         <!-- 用户信息内容 -->
         <div
-          class="relative bg-white rounded-2xl p-4 shadow-lg overflow-hidden mt-20"
+          class="relative bg-white rounded-2xl p-4 shadow-lg overflow-hidden"
         >
           <!-- 性别标识 -->
           <div
-            class="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center"
+            class="absolute top-5 -right-8 w-28 text-center py-1 text-xs font-medium transform rotate-45 shadow-sm"
             :class="[
               userStore.userInfo?.sex === 1
-                ? 'bg-blue-50 text-blue-500'
-                : 'bg-pink-50 text-pink-500',
+                ? 'bg-blue-500 text-white'
+                : 'bg-pink-500 text-white',
             ]"
-          >
-            <van-icon
-              :name="userStore.userInfo?.sex === 1 ? 'male' : 'female'"
-              class="text-lg"
-            />
-          </div>
+          ></div>
 
           <div class="flex items-center">
             <!-- 头像区域 -->
@@ -163,7 +140,7 @@
               class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
             >
               <div class="text-lg font-semibold text-brand-500">
-                ¥{{ userStats.balance }}
+                ¥ {{ userStats.balance }}
               </div>
               <div
                 class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
@@ -204,6 +181,35 @@
               >
                 邀请
               </div>
+            </div>
+          </div>
+        </div>
+        <!-- 在线状态卡片 -->
+        <div v-if="userStore.isSeller" class="mt-6">
+          <div class="bg-white/95 backdrop-blur rounded-xl p-3 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <span
+                  class="w-2 h-2 rounded-full mr-2"
+                  :class="[
+                    online ? 'bg-success-500 animate-pulse' : 'bg-surface-300',
+                  ]"
+                />
+                <span class="text-base font-medium">{{
+                  online ? "在线接单" : "暂停接单"
+                }}</span>
+              </div>
+              <van-switch
+                v-model="online"
+                size="20px"
+                active-color="#10b981"
+                @change="handleOnlineChange"
+              />
+            </div>
+            <div class="mt-1 text-xs text-surface-500">
+              {{
+                online ? "当前状态：可以接受新的订单" : "当前状态：暂时无法接单"
+              }}
             </div>
           </div>
         </div>
@@ -401,7 +407,7 @@ const router = useRouter();
 const userStore = useUserStore();
 const activeNames = ref([]);
 
-// 是否为开发环境
+// 是否是开发环境
 const isDev = computed(() => process.env.NODE_ENV === "development");
 
 // 获取用户信息
@@ -458,6 +464,21 @@ const userStats = ref({
   todaySignIn: false,
 });
 
+// TODO: 从后端获取用户统计数据
+const getUserStats = async () => {
+  try {
+    // TODO: 调用获取用户统计数据接口
+    // const data = await getUserStatsApi(userStore.userInfo.id);
+    // userStats.value = data;
+  } catch (error) {
+    console.error("获取用户统计数据失败:", error);
+    showToast({
+      message: "获取统计数据失败",
+      type: "fail",
+    });
+  }
+};
+
 // 店员统计信息
 const sellerStats = ref({
   pendingOrders: 5, // 待处理订单数
@@ -495,23 +516,13 @@ const handleSignIn = () => {
 
 // 成为店员
 const handleBecomeSeller = () => {
-  showDialog({
-    title: "成为店员",
-    message: "成为店员后可以管理店铺、处理订单等",
-    confirmButtonText: "立即申请",
-    confirmButtonColor: "#14b8a6",
-    cancelButtonText: "暂不考虑",
-  })
-    .then(() => {
-      // TODO: 实现店员申请功能
-      // 1. 调用申请接口
-      // 2. 处理审核流程
-      showToast({
-        message: "申请已提交",
-        icon: "success",
-      });
-    })
-    .catch(() => {});
+  // TODO: 实现店员申请功能
+  // 1. 调用申请接口
+  // 2. 处理审核流程
+  showToast({
+    message: "申请已提交",
+    icon: "success",
+  });
 };
 
 // 退出登录
@@ -540,13 +551,11 @@ const handleEditAvatar = () => {
 
 // 订单管理
 const handleOrders = () => {
-  // TODO: 实现订单管理页面
   router.push("/orders");
 };
 
 // 收藏店员
 const handleFavorites = () => {
-  // TODO: 实现收藏店员页面
   router.push("/favorites");
 };
 
@@ -592,16 +601,6 @@ const handleManageTags = () => {
   router.push("/tags-manage");
 };
 
-// 装修主页
-const handleCustomizeHomepage = () => {
-  router.push("/seller/customize");
-};
-
-// 店员订单管理
-const handleSellerOrders = () => {
-  router.push("/seller/orders");
-};
-
 // 收入统计
 const handleIncome = () => {
   router.push("/seller/income");
@@ -633,7 +632,7 @@ const handleOnlineChange = async (value) => {
     });
   } catch (error) {
     console.error("更新在线状态失败:", error);
-    online.value = !value; // 恢复状态
+    online.value = !value;
     showToast({
       message: "状态更新失败",
       type: "fail",

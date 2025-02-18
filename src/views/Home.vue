@@ -43,27 +43,11 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/modules/user";
-import { configWxShare } from "@/api/wx";
-import { checkWxSdkAvailable } from "@/utils/wx-sdk";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 
 const router = useRouter();
 const userStore = useUserStore();
 const version = ref(process.env.VUE_APP_VERSION || "1.0.0");
-
-// 配置分享
-onMounted(async () => {
-  const isAvailable = await checkWxSdkAvailable();
-  if (!isAvailable) {
-    console.log("微信 JS-SDK 不可用，跳过分享配置");
-    return;
-  }
-
-  configWxShare({
-    title: "欢迎来到 Companion",
-    desc: `${userStore.userInfo?.nickname} 邀请你一起来体验`,
-  });
-});
 
 const menuItems = [
   {

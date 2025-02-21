@@ -7,7 +7,7 @@
         <div class="text-surface-600 font-medium mb-4">已选标签</div>
         <div class="flex flex-wrap gap-2">
           <div
-            v-for="(tag, index) in selectedTags"
+            v-for="tag in selectedTags"
             :key="tag"
             class="px-3 py-1.5 bg-brand-50 rounded-full flex items-center group"
             @click="removeTag(tag)"

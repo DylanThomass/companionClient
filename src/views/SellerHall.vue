@@ -57,10 +57,7 @@
           </div>
 
           <!-- 第一名 -->
-          <div
-            class="relative w-28 text-center -mt-4"
-            @click="router.push(`/seller/${topSellers[0].id}`)"
-          >
+          <div class="relative w-28 text-center -mt-4">
             <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
               <van-icon name="crown" class="text-2xl text-yellow-500" />
             </div>
@@ -91,9 +88,6 @@
               {{ topSellers[0].orderCount }}单
             </div>
             <div class="mt-1 flex items-center justify-center gap-1">
-              <span class="text-yellow-500 text-sm">{{
-                topSellers[0].rating
-              }}</span>
               <van-rate
                 v-model="topSellers[0].rating"
                 :size="14"

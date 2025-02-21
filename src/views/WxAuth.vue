@@ -20,7 +20,8 @@ const loadingText = ref("正在登录...");
 onMounted(async () => {
   try {
     // 获取 URL 中的 code 参数
-    const { code, state } = route.query;
+    const { code } = route.query;
+    
     console.log("code", code);
 
     if (!code) {
@@ -30,8 +31,10 @@ onMounted(async () => {
     // 调用微信登录接口
     const data = await userStore.login(code);
 
-    // 保存用户信息和 token
-    userStore.setUserInfo(data.userInfo);
+    console.log("data", data);
+
+    // // 保存用户信息和 token
+    // userStore.setUserInfo(data.userInfo);
     userStore.setToken(data.token);
 
     // 跳转到原来的页面或首页

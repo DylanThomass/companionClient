@@ -1,62 +1,7 @@
 import { defineStore } from "pinia";
 import { wxLogin } from "@/api/wx";
 import { getUserInfo } from "@/api/user";
-import headImg from "@/assets/test/HeadImg-1.jpg";
-// Mock 数据 - 店员
-const MOCK_USER_INFO = {
-  id: 1001,
-  openId: "o0Nbu7AX1_CpU3GSre5ShDs-SSPU",
-  nickname: "治愈系店员",
-  avatarUrl: headImg,
-  gender: 1, // 1-男 2-女
-  province: "广东",
-  city: "深圳",
-  role: 2, // 1-普通用户 2-店员
-  stats: {
-    balance: 888.88,
-    coupons: 5,
-    signInDays: 12,
-    inviteCount: 8,
-    todaySignIn: false,
-  },
-  seller: {
-    pendingOrders: 3,
-    todayIncome: 666,
-    monthIncome: 8888,
-    totalIncome: 66666,
-    rating: 4.9,
-    orderCount: 128,
-  },
-  tags: ["温暖贴心", "专业可靠", "倾听者"],
-  level: {
-    exp: 750,
-    title: "温暖使者",
-  },
-};
-
-// Mock 数据 - 普通用户
-const MOCK_NORMAL_USER = {
-  id: 1002,
-  openId: "o0Nbu7AX1_CpU3GSre5ShDs-NORM",
-  nickname: "暖心用户",
-  avatarUrl: headImg,
-  gender: 2, // 1-男 2-女
-  province: "广东",
-  city: "广州",
-  role: 1, // 1-普通用户 2-店员
-  stats: {
-    balance: 200.0,
-    coupons: 2,
-    signInDays: 3,
-    inviteCount: 1,
-    todaySignIn: false,
-  },
-  tags: ["积极乐观", "善解人意"],
-  level: {
-    exp: 280,
-    title: "初心者",
-  },
-};
+import { MOCK_SELLER_USER, MOCK_NORMAL_USER } from "@/mock";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -64,7 +9,7 @@ export const useUserStore = defineStore("user", {
     openid: "",
     userInfo: null,
     // 默认使用普通用户数据
-    role: process.env.VUE_APP_USE_MOCK === "true" ? MOCK_NORMAL_USER.role : 1,
+    role: 1,
   }),
 
   actions: {
@@ -87,8 +32,10 @@ export const useUserStore = defineStore("user", {
 
     logout() {
       this.token = "";
+      this.openid = "";
       this.userInfo = null;
       this.role = 1;
+      localStorage.clear();
     },
 
     async getUserInfo() {
@@ -98,7 +45,7 @@ export const useUserStore = defineStore("user", {
         process.env.VUE_APP_USE_MOCK === "true"
       ) {
         // 根据当前角色返回对应的 mock 数据
-        const mockData = this.role === 2 ? MOCK_USER_INFO : MOCK_NORMAL_USER;
+        const mockData = this.role === 2 ? MOCK_SELLER_USER : MOCK_NORMAL_USER;
         this.userInfo = mockData;
         return mockData;
       }
@@ -116,7 +63,7 @@ export const useUserStore = defineStore("user", {
     // 切换测试用户类型
     toggleUserType() {
       if (this.role === 1) {
-        this.userInfo = MOCK_USER_INFO;
+        this.userInfo = MOCK_SELLER_USER;
         this.role = 2;
       } else {
         this.userInfo = MOCK_NORMAL_USER;

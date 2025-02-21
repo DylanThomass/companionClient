@@ -37,17 +37,11 @@ const onClickLeft = () => {
 onMounted(async () => {
   console.log("App mounted, 准备初始化微信配置");
   try {
-    // 非微信环境不初始化配置
-    if (!isWxEnv()) {
-      console.log("非微信环境，跳过配置初始化");
-      return;
-    }
-
-    // 获取当前页面 URL，不包含 hash
+    // 获取当前页面 URL
     const url =
       process.env.NODE_ENV === "development"
-        ? window.location.href.split("#")[0].replace("https://", "http://")
-        : window.location.href.split("#")[0];
+        ? window.location.href.replace("https://", "http://")
+        : window.location.href;
 
     await initWxConfig(url, [
       "updateAppMessageShareData",
@@ -64,10 +58,15 @@ onMounted(async () => {
       data: error.response?.data,
     });
 
-    // 如果不是开发环境，显示友好的错误提示
+    // 建议添加更具体的错误类型判断
+    const errorMessage =
+      error.response?.status === 401
+        ? "微信授权失败，请重新登录"
+        : "微信初始化失败，请刷新重试";
+
     if (process.env.NODE_ENV !== "development") {
       showToast({
-        message: "微信初始化失败，请刷新重试",
+        message: errorMessage,
         type: "fail",
       });
     }

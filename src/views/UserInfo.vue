@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-surface-50 to-surface-100">
     <!-- 开发环境测试按钮 -->
-    <div v-if="isDev" class="fixed bottom-20 right-4 z-50">
+    <div v-if="isDev && !isWx" class="fixed bottom-20 right-4 z-50">
       <van-button
         round
         size="small"
@@ -40,7 +40,7 @@
           <div
             class="absolute top-5 -right-8 w-28 text-center py-1 text-xs font-medium transform rotate-45 shadow-sm"
             :class="[
-              userStore.userInfo?.sex === 1
+              userStore.userInfo?.sex === 0
                 ? 'bg-blue-500 text-white'
                 : 'bg-pink-500 text-white',
             ]"
@@ -121,13 +121,13 @@
                 {{ userLevel.title }}
               </span>
               <span class="text-brand-500 font-medium">
-                {{ userLevel.exp }}/{{ userLevel.nextExp }}
+                {{ userLevel.currentExp }}/{{ userLevel.nextLevelExp }}
               </span>
             </div>
             <div class="h-2 bg-surface-100 rounded-full overflow-hidden">
               <div
                 class="h-full bg-gradient-to-r from-brand-400 to-brand-500 rounded-full transition-all duration-300"
-                :style="{ width: `${userLevel.exp % 100}%` }"
+                :style="{ width: `${userLevel.progress}%` }"
               ></div>
             </div>
           </div>
@@ -402,6 +402,8 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/modules/user";
 import { showToast, showDialog } from "vant";
+import { calculateUserLevel } from "@/mock";
+import { isWxEnv } from "@/utils/wx-sdk";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -410,14 +412,13 @@ const activeNames = ref([]);
 // 是否是开发环境
 const isDev = computed(() => process.env.NODE_ENV === "development");
 
+// 是否是微信环境
+const isWx = computed(() => isWxEnv());
+
 // 获取用户信息
 const getUserInfo = async () => {
   try {
-    const data = await userStore.getUserInfo();
-    console.log("getUserInfo", data);
-    // if (data) {
-    //   userStore.setUserInfo(data);
-    // }
+    await userStore.getUserInfo();
   } catch (error) {
     console.error("获取用户信息失败:", error);
     showToast({
@@ -430,29 +431,18 @@ const getUserInfo = async () => {
 onMounted(async () => {
   if (!userStore.openid) {
     console.log("openid 为空，跳过获取用户信息");
-    // return;
+    return;
   }
   await getUserInfo();
 });
 
 // 头像地址
-const avatarUrl = computed(() => {
-  console.log("avatarUrl", userStore.userInfo?.headimgurl);
-  return userStore.userInfo?.avatarUrl;
-});
+const avatarUrl = computed(() => userStore.userInfo?.avatarUrl);
 
 // 用户等级信息
 const userLevel = computed(() => {
   // TODO: 从后端获取用户经验值
-  const exp = 750;
-  const level = Math.floor(exp / 100) + 1;
-  const titles = ["初心者", "温暖使者", "关怀大师", "守护天使", "温暖领袖"];
-  return {
-    level,
-    exp,
-    nextExp: level * 100,
-    title: titles[Math.min(level - 1, titles.length - 1)],
-  };
+  return calculateUserLevel(700);
 });
 
 // 用户统计信息
@@ -587,7 +577,7 @@ const handleClearCache = () => {
       // 1. 清理本地存储
       // 2. 清理应用缓存
       // 3. 重新加载必要数据
-      localStorage.clear();
+      userStore.logout();
       showToast({
         message: "缓存已清理",
         icon: "success",

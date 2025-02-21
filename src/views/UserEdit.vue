@@ -38,8 +38,21 @@
               placeholder="请输入昵称"
               :rules="[{ required: true, message: '请输入昵称' }]"
               class="custom-field"
-            />
+            >
+              <template #label>
+                <div class="flex items-center">
+                  <van-icon name="user-o" class="mr-1 text-brand-500" />
+                  昵称
+                </div>
+              </template>
+            </van-field>
             <van-field name="sex" label="性别" class="custom-field">
+              <template #label>
+                <div class="flex items-center">
+                  <van-icon name="friends-o" class="mr-1 text-brand-500" />
+                  性别
+                </div>
+              </template>
               <template #input>
                 <van-radio-group
                   v-model="formData.sex"
@@ -47,7 +60,7 @@
                   class="custom-radio-group"
                 >
                   <van-radio :name="1" checked-color="#14b8a6">男</van-radio>
-                  <van-radio :name="2" checked-color="#14b8a6">女</van-radio>
+                  <van-radio :name="0" checked-color="#14b8a6">女</van-radio>
                 </van-radio-group>
               </template>
             </van-field>
@@ -59,7 +72,14 @@
               is-link
               @click="showArea = true"
               class="custom-field"
-            />
+            >
+              <template #label>
+                <div class="flex items-center">
+                  <van-icon name="location-o" class="mr-1 text-brand-500" />
+                  地区
+                </div>
+              </template>
+            </van-field>
             <template v-if="userStore.isSeller">
               <van-field
                 v-model="formData.birthday"
@@ -69,22 +89,48 @@
                 is-link
                 @click="showBirthdayPicker = true"
                 :rules="[{ required: true, message: '请选择出生日期' }]"
-              />
-              <van-field
-                v-model="formData.bio"
-                label="个性签名"
-                type="textarea"
-                rows="3"
-                placeholder="介绍一下自己吧"
-                :rules="[{ required: true, message: '请输入个性签名' }]"
+                class="custom-field"
               >
-                <template #extra>
-                  <div class="text-xs text-surface-400">
-                    {{ formData.bio.length }}/50
+                <template #label>
+                  <div class="flex items-center">
+                    <van-icon name="calendar-o" class="mr-1 text-brand-500" />
+                    出生日期
                   </div>
                 </template>
               </van-field>
             </template>
+            <van-field
+              v-model="formData.bio"
+              v-if="userStore.isSeller"
+              label="个性签名"
+              type="textarea"
+              rows="3"
+              maxlength="50"
+              :placeholder="
+                userStore.isSeller
+                  ? '介绍一下自己，让更多人了解你'
+                  : '写点什么来展示自己吧'
+              "
+              class="custom-field"
+              :rules="[
+                {
+                  required: userStore.isSeller,
+                  message: '请输入个性签名',
+                },
+              ]"
+            >
+              <template #extra>
+                <div class="text-xs text-surface-400">
+                  {{ formData.bio.length }}/50
+                </div>
+              </template>
+              <template #label>
+                <div class="flex items-center">
+                  <van-icon name="edit" class="mr-1 text-brand-500" />
+                  个性签名
+                </div>
+              </template>
+            </van-field>
           </van-cell-group>
           <div class="p-6">
             <van-button
@@ -94,6 +140,7 @@
               native-type="submit"
               :loading="submitting"
               class="btn-primary"
+              @click="onSubmit"
             >
               保存
             </van-button>
@@ -131,9 +178,9 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/modules/user";
-import { showToast, Area } from "vant";
+import { showToast } from "vant";
 import { areaList } from "@vant/area-data";
-
+// import { updateUserInfo } from "@/api/user";
 const router = useRouter();
 const userStore = useUserStore();
 
@@ -151,8 +198,7 @@ const formData = ref({
     ? `${userStore.userInfo.province} ${userStore.userInfo.city}`
     : "",
   birthday: userStore.userInfo?.birthday || "1995-01-01",
-  bio:
-    userStore.userInfo?.bio || "专注于倾听和陪伴，让每一次对话都充满温暖和治愈",
+  bio: userStore.userInfo?.bio || "",
 });
 
 const showArea = ref(false);
@@ -161,7 +207,7 @@ const submitting = ref(false);
 
 // 头像地址
 const avatarUrl = computed(() => {
-  const url = userStore.userInfo?.headimgurl;
+  const url = userStore.userInfo?.avatarUrl;
   // 如果URL无效或未定义，返回默认头像
   return url && url !== "undefined" ? url : DEFAULT_AVATAR;
 });
@@ -185,16 +231,44 @@ const onConfirmArea = ({ selectedOptions }) => {
 };
 
 // 编辑头像
-const handleEditAvatar = () => {
+const handleEditAvatar = async () => {
   // TODO: 实现头像上传功能
-  // 1. 调用微信 JS-SDK 选择图片
-  // 2. 上传图片到服务器
-  // 3. 更新用户头像
-  showToast({
-    message: "头像上传功能开发中...",
-    type: "success",
-    icon: "success",
-  });
+  // try {
+  //   const res = await chooseImage();
+  //   console.log("选择图片返回:", res);
+  //   const localImgUrl = await getLocalImgUrl(res[0]);
+  //   console.log("本地图片 base64:", localImgUrl.slice(0, 50) + "..."); // 只打印开头部分避免日志过长
+  //   const file = base64ToFile(localImgUrl);
+  //   console.log("转换后的文件:", {
+  //     name: file.name,
+  //     size: file.size,
+  //     type: file.type,
+  //     lastModified: file.lastModified,
+  //   });
+  //   // 验证文件是否有效
+  //   if (!(file instanceof File) || file.size === 0) {
+  //     throw new Error("文件转换失败");
+  //   }
+  //   // 创建 FormData 对象
+  //   const formData = new FormData();
+  //   formData.append("avatar", file);
+  //   const result = await updateUserInfo(formData);
+  //   console.log("上传结果:", result);
+  //   // 更新头像显示
+  //   if (result.avatarUrl) {
+  //     userStore.updateUserAvatar(result.avatarUrl);
+  //   }
+  //   showToast({
+  //     message: "头像更新成功",
+  //     type: "success",
+  //   });
+  // } catch (error) {
+  //   console.error("头像上传失败:", error);
+  //   showToast({
+  //     message: error.message || "头像上传失败",
+  //     type: "fail",
+  //   });
+  // }
 };
 
 // 生成年月日选择器的列
@@ -237,6 +311,9 @@ const onSubmit = async () => {
     // TODO: 实现用户信息更新
     // 1. 调用后端更新接口
     // 2. 更新本地 store 数据
+    // const data = await updateUserInfo({
+    //   sex: formData.value.sex,
+    // });
     showToast({
       message: "保存成功",
       type: "success",
@@ -263,7 +340,17 @@ const onSubmit = async () => {
 }
 
 .custom-field :deep(.van-field__label) {
-  @apply text-surface-600 w-16;
+  @apply text-surface-600;
+}
+
+/* 调整图标样式 */
+.custom-field :deep(.van-field__label-icon) {
+  @apply mr-1 text-lg;
+}
+
+/* 调整图标与文字的对齐 */
+.custom-field :deep(.van-field__label-icon .van-icon) {
+  @apply -mt-0.5;
 }
 
 .custom-radio-group :deep(.van-radio) {

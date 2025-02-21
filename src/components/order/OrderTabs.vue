@@ -81,6 +81,20 @@ const orderData = {
       },
     },
   ],
+  appeal: [
+    {
+      id: "O2024030104",
+      title: "心理咨询",
+      status: "appeal",
+      price: 128.0,
+      createTime: "2024-03-01 16:30",
+      seller: {
+        id: 3,
+        name: "星河漫步",
+        avatar: HeadImg3,
+      },
+    },
+  ],
 };
 
 // 标签页配置

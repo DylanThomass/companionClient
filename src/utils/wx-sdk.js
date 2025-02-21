@@ -10,7 +10,11 @@ const DEFAULT_JS_API_LIST = [
   "updateTimelineShareData",
 ];
 
-// 从缓存获取配置
+/**
+ * 从缓存获取配置
+ * @param {string} url - 当前页面 URL
+ * @returns {Object} 微信配置
+ */
 const getConfigFromCache = (url) => {
   const cached = localStorage.getItem(WX_CONFIG_CACHE_KEY);
   if (!cached) return null;
@@ -27,7 +31,11 @@ const getConfigFromCache = (url) => {
   return null;
 };
 
-// 保存配置到缓存
+/**
+ * 保存配置到缓存
+ * @param {string} url - 当前页面 URL
+ * @param {Object} config - 微信配置
+ */
 const saveConfigToCache = (url, config) => {
   try {
     const cacheData = {
@@ -45,10 +53,6 @@ const saveConfigToCache = (url, config) => {
  * @returns {boolean}
  */
 export function isWxEnv() {
-  // 开发环境返回 true，方便调试
-  if (process.env.NODE_ENV === "development") {
-    return false;
-  }
   const ua = navigator.userAgent.toLowerCase();
   return ua.includes("micromessenger");
 }
@@ -131,7 +135,11 @@ export async function initWxConfig(url, jsApiList = DEFAULT_JS_API_LIST) {
   }
 }
 
-// 选择图片
+/**
+ * 选择图片
+ * @param {number} count - 选择图片数量
+ * @returns {Promise<string[]>} 本地图片 ID 列表
+ */
 export function chooseImage(count = 1) {
   return new Promise((resolve, reject) => {
     wx.chooseImage({
@@ -144,7 +152,38 @@ export function chooseImage(count = 1) {
   });
 }
 
-// 获取位置
+/**
+ * 获取本地图片 URL
+ * @param {string} localId - 本地图片 ID
+ * @returns {Promise<string>} 本地图片 URL
+ */
+export function getLocalImgUrl(localId) {
+  return new Promise((resolve, reject) => {
+    wx.getLocalImgData({
+      localId,
+      success: (res) => {
+        // 在微信环境中，iOS 和 Android 返回的 localData 格式可能不同
+        let localData = res.localData;
+        console.log("微信返回的原始数据类型:", typeof localData);
+        console.log("数据开头:", localData.substring(0, 50));
+
+        // 对于 iOS，如果返回的是包含头部信息的完整 base64，直接使用
+        if (localData.indexOf("data:image") !== 0) {
+          // 对于 Android，需要手动添加头部信息
+          localData = "data:image/jpeg;base64," + localData;
+        }
+        console.log("处理后的数据长度:", localData.length);
+        resolve(localData);
+      },
+      fail: reject,
+    });
+  });
+}
+
+/**
+ * 获取位置
+ * @returns {Promise<Object>} 位置信息
+ */
 export function getLocation() {
   return new Promise((resolve, reject) => {
     wx.getLocation({

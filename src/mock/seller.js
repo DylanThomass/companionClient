@@ -1,0 +1,98 @@
+import HeadImg1 from "@/assets/test/HeadImg-1.jpg";
+import HeadImg2 from "@/assets/test/HeadImg-2.jpg";
+import HeadImg3 from "@/assets/test/HeadImg-3.jpg";
+import HeadImg4 from "@/assets/test/HeadImg-4.jpg";
+
+// TOP3 店员数据
+export const topSellers = [
+  {
+    id: 1,
+    name: "安心姐姐",
+    avatar: HeadImg1,
+    gender: "female",
+    rating: 4.9,
+    praiseRate: 98,
+    level: 12,
+    tags: ["专业认证", "情感咨询", "心理疏导", "温暖治愈"],
+    constellation: "天秤座",
+    bio: "专注于倾听和陪伴，让每一次对话都充满温暖和治愈",
+    online: true,
+    isFavorite: false,
+  },
+  {
+    id: 2,
+    name: "暖阳",
+    avatar: HeadImg2,
+    gender: "male",
+    rating: 4.8,
+    praiseRate: 96,
+    level: 10,
+    tags: ["情感专家", "职场建议", "生活指导", "擅长倾听"],
+    constellation: "双子座",
+    bio: "一起分享生活中的点点滴滴，温暖相伴",
+    online: true,
+    isFavorite: false,
+  },
+  {
+    id: 3,
+    name: "小月",
+    avatar: HeadImg3,
+    gender: "female",
+    rating: 4.8,
+    praiseRate: 95,
+    level: 8,
+    tags: ["心理疏导", "情绪管理", "正向引导", "知心姐姐"],
+    constellation: "水瓶座",
+    bio: "用专业的知识和温暖的心，陪你度过每个难关",
+    online: false,
+    isFavorite: false,
+  },
+];
+
+// 所有店员数据（包含 TOP3）
+export const sellers = [
+  ...topSellers,
+  {
+    id: 4,
+    name: "晚樱初雪",
+    avatar: HeadImg4,
+    gender: "female",
+    rating: 4.7,
+    praiseRate: 94,
+    level: 3,
+    tags: ["新人店员", "暖心治愈", "倾听陪伴", "知心姐姐"],
+    constellation: "白羊座",
+    location: "四川·成都",
+    bio: "用温暖的心倾听每一个故事",
+    online: true,
+    isFavorite: false,
+  },
+  {
+    id: 5,
+    name: "解忧先生",
+    avatar: HeadImg2,
+    gender: "male",
+    rating: 4.9,
+    praiseRate: 97,
+    level: 9,
+    tags: ["专业认证", "情感咨询", "职场指导", "经验丰富"],
+    constellation: "射手座",
+    bio: "专业的建议，走心的陪伴",
+    online: true,
+    isFavorite: false,
+  },
+  {
+    id: 6,
+    name: "心理小屋",
+    avatar: HeadImg1,
+    gender: "female",
+    rating: 4.8,
+    praiseRate: 96,
+    level: 7,
+    tags: ["心理咨询师", "情绪疏导", "专业认证", "擅长倾听"],
+    constellation: "处女座",
+    bio: "让我们一起整理情绪的小屋",
+    online: false,
+    isFavorite: false,
+  },
+];

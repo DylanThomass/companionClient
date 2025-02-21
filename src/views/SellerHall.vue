@@ -28,7 +28,7 @@
         <div class="flex justify-center items-end gap-4 mb-6">
           <!-- 第二名 -->
           <div
-            class="relative w-24 text-center"
+            class="relative w-24 text-center translate-y-4"
             @click="router.push(`/seller/${topSellers[1].id}`)"
           >
             <van-image
@@ -36,7 +36,7 @@
               width="72"
               height="72"
               :src="topSellers[1].avatar"
-              class="mx-auto border-2 border-silver-500 shadow-lg"
+              class="mx-auto shadow-md"
             />
             <div class="mt-3 flex items-center justify-center gap-1">
               <span class="font-medium text-surface-800 truncate">
@@ -54,22 +54,27 @@
                 class="text-sm"
               />
             </div>
-            <div class="mt-1 text-xs text-surface-500">
-              {{ topSellers[1].orderCount }}单
+            <div class="mt-1.5">
+              <div class="text-xs text-brand-500 font-medium">
+                {{ topSellers[1].rating }}分
+              </div>
+              <div class="text-[10px] text-surface-400 mt-0.5">
+                {{ topSellers[1].praiseRate }}%好评
+              </div>
             </div>
           </div>
 
           <!-- 第一名 -->
-          <div class="relative w-28 text-center -mt-4">
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-              <van-icon name="crown" class="text-2xl text-yellow-500" />
-            </div>
+          <div
+            class="relative w-32 text-center -translate-y-6"
+            @click="router.push(`/seller/${topSellers[0].id}`)"
+          >
             <van-image
               round
-              width="88"
-              height="88"
+              width="96"
+              height="96"
               :src="topSellers[0].avatar"
-              class="mx-auto border-3 border-yellow-500 shadow-xl"
+              class="mx-auto shadow-lg"
             />
             <div class="mt-3 flex items-center justify-center gap-1">
               <span class="font-medium text-lg text-surface-800 truncate">
@@ -87,32 +92,32 @@
                 class="text-base"
               />
             </div>
-            <div class="mt-1 text-sm text-brand-500 font-medium">
-              {{ topSellers[0].orderCount }}单
-            </div>
-            <div class="mt-1 flex items-center justify-center gap-1">
+            <div class="mt-2">
               <van-rate
                 v-model="topSellers[0].rating"
-                :size="14"
+                :size="16"
                 color="#f59e0b"
                 void-icon="star"
                 void-color="#e5e7eb"
                 readonly
               />
+              <div class="text-[10px] text-surface-400 mt-1">
+                {{ topSellers[0].praiseRate }}%好评
+              </div>
             </div>
           </div>
 
           <!-- 第三名 -->
           <div
-            class="relative w-24 text-center"
+            class="relative w-24 text-center translate-y-8"
             @click="router.push(`/seller/${topSellers[2].id}`)"
           >
             <van-image
               round
-              width="72"
-              height="72"
+              width="60"
+              height="60"
               :src="topSellers[2].avatar"
-              class="mx-auto border-2 border-bronze-500 shadow-lg"
+              class="mx-auto shadow-md"
             />
             <div class="mt-3 flex items-center justify-center gap-1">
               <span class="font-medium text-surface-800 truncate">
@@ -130,8 +135,13 @@
                 class="text-sm"
               />
             </div>
-            <div class="mt-1 text-xs text-surface-500">
-              {{ topSellers[2].orderCount }}单
+            <div class="mt-1.5">
+              <div class="text-xs text-brand-500 font-medium">
+                {{ topSellers[2].rating }}分
+              </div>
+              <div class="text-[10px] text-surface-400 mt-0.5">
+                {{ topSellers[2].praiseRate }}%好评
+              </div>
             </div>
           </div>
         </div>
@@ -411,10 +421,7 @@
 import { ref, computed, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { showToast, showDialog } from "vant";
-import HeadImg1 from "@/assets/test/HeadImg-1.jpg";
-import HeadImg2 from "@/assets/test/HeadImg-2.jpg";
-import HeadImg3 from "@/assets/test/HeadImg-3.jpg";
-import HeadImg4 from "@/assets/test/HeadImg-4.jpg";
+import { sellers, topSellers } from "@/mock/seller";
 import InfoCarousel from "@/components/hall/InfoCarousel.vue";
 
 const router = useRouter();
@@ -451,70 +458,11 @@ const hasActiveFilters = computed(() => {
   );
 });
 
-// 模拟店员数据
-const sellers = ref([
-  {
-    id: 1,
-    name: "治愈系店员",
-    avatar: HeadImg1,
-    rating: 4.8,
-    level: 8,
-    gender: 1,
-    constellation: "天秤座",
-    bio: "专注于倾听和陪伴，让每一次对话都充满温暖和治愈",
-    tags: ["温暖贴心", "专业可靠", "倾听者", "治愈系"],
-  },
-  {
-    id: 2,
-    name: "暖心小姐姐",
-    avatar: HeadImg2,
-    rating: 4.9,
-    level: 12,
-    gender: 2,
-    constellation: "双子座",
-    bio: "一起分享生活中的点点滴滴，温暖相伴",
-    tags: ["细心", "有耐心", "情感专家"],
-  },
-  {
-    id: 3,
-    name: "星河漫步",
-    tags: ["倾听陪伴", "情绪管理", "正向引导"],
-    avatar: HeadImg3,
-    rating: 4.8,
-    orderCount: 152,
-    gender: "male",
-    level: 6,
-    location: "江苏·南京",
-    constellation: "水瓶座",
-    isFavorite: false,
-    note: null,
-  },
-  {
-    id: 4,
-    name: "晚樱初雪",
-    tags: ["新人店员", "暖心治愈", "知心姐姐"],
-    avatar: HeadImg4,
-    rating: 5,
-    orderCount: 32,
-    gender: "female",
-    level: 3,
-    location: "四川·成都",
-    constellation: "白羊座",
-    isFavorite: false,
-    note: null,
-  },
-]);
-
-// TOP3 店员
-const topSellers = computed(() => {
-  return [...sellers.value]
-    .sort((a, b) => b.orderCount - a.orderCount)
-    .slice(0, 3);
-});
+const sellerList = ref(sellers);
 
 // 筛选后的店员列表
 const filteredSellers = computed(() => {
-  return sellers.value.filter((seller) => {
+  return sellerList.value.filter((seller) => {
     // 搜索过滤
     if (
       searchText.value &&
@@ -637,7 +585,7 @@ const handleUnfavorite = (seller) => {
 
 // 特色店员
 const featuredSellers = computed(() => {
-  return sellers.value.filter((seller) => seller.rating >= 4.8).slice(0, 3);
+  return sellerList.value.filter((seller) => seller.rating >= 4.8).slice(0, 3);
 });
 
 // 咨询主题
@@ -666,7 +614,7 @@ const handleMatch = async () => {
   try {
     // TODO: 调用匹配接口
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    const matchedSeller = sellers.value.find((seller) =>
+    const matchedSeller = sellerList.value.find((seller) =>
       seller.tags.includes(selectedTopic.value)
     );
     if (matchedSeller) {

@@ -12,6 +12,9 @@
       </div>
     </div>
 
+    <!-- 信息轮播 -->
+    <info-carousel />
+
     <!-- TOP3 店员展示 -->
     <div class="relative overflow-hidden">
       <div
@@ -354,6 +357,53 @@
         </div>
       </div>
     </van-popup>
+
+    <!-- 智能匹配入口 -->
+    <div class="fixed right-4 bottom-20 z-50">
+      <van-button
+        round
+        type="primary"
+        size="small"
+        icon="magic-stick"
+        @click="showMatchDialog = true"
+      >
+        智能匹配
+      </van-button>
+    </div>
+
+    <!-- 匹配弹窗 -->
+    <van-dialog
+      v-model:show="showMatchDialog"
+      title="智能匹配店员"
+      :show-confirm-button="false"
+      class="match-dialog"
+    >
+      <div class="p-4">
+        <div class="space-y-4">
+          <div class="text-sm text-surface-600">选择咨询主题</div>
+          <div class="grid grid-cols-2 gap-3">
+            <div
+              v-for="topic in consultTopics"
+              :key="topic.id"
+              class="p-3 rounded-xl border text-center cursor-pointer transition-colors"
+              :class="[
+                selectedTopic === topic.id
+                  ? 'border-brand-500 bg-brand-50 text-brand-500'
+                  : 'border-surface-200',
+              ]"
+              @click="selectedTopic = topic.id"
+            >
+              <van-icon :name="topic.icon" class="text-xl mb-1" />
+              <div class="text-sm">{{ topic.name }}</div>
+            </div>
+          </div>
+
+          <van-button block type="primary" class="mt-6" @click="handleMatch">
+            开始匹配
+          </van-button>
+        </div>
+      </div>
+    </van-dialog>
   </div>
 </template>
 
@@ -365,6 +415,7 @@ import HeadImg1 from "@/assets/test/HeadImg-1.jpg";
 import HeadImg2 from "@/assets/test/HeadImg-2.jpg";
 import HeadImg3 from "@/assets/test/HeadImg-3.jpg";
 import HeadImg4 from "@/assets/test/HeadImg-4.jpg";
+import InfoCarousel from "@/components/hall/InfoCarousel.vue";
 
 const router = useRouter();
 const searchText = ref("");
@@ -582,6 +633,52 @@ const handleUnfavorite = (seller) => {
       type: "success",
     });
   });
+};
+
+// 特色店员
+const featuredSellers = computed(() => {
+  return sellers.value.filter((seller) => seller.rating >= 4.8).slice(0, 3);
+});
+
+// 咨询主题
+const consultTopics = [
+  { id: "emotion", name: "情感困扰", icon: "like-o" },
+  { id: "anxiety", name: "焦虑压力", icon: "warning-o" },
+  { id: "career", name: "职业发展", icon: "chart-trending-o" },
+  { id: "life", name: "生活困惑", icon: "question-o" },
+];
+
+const showMatchDialog = ref(false);
+const selectedTopic = ref("");
+
+// 智能匹配
+const handleMatch = async () => {
+  if (!selectedTopic.value) {
+    showToast("请选择咨询主题");
+    return;
+  }
+
+  showLoadingToast({
+    message: "正在匹配最适合的店员...",
+    duration: 0,
+  });
+
+  try {
+    // TODO: 调用匹配接口
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const matchedSeller = sellers.value.find((seller) =>
+      seller.tags.includes(selectedTopic.value)
+    );
+    if (matchedSeller) {
+      handleSellerClick(matchedSeller);
+    } else {
+      showToast("没有找到合适的店员");
+    }
+  } catch (error) {
+    showToast("匹配失败，请稍后再试");
+  } finally {
+    showLoadingToast.value = false;
+  }
 };
 </script>
 

@@ -450,77 +450,69 @@ const sellerStats = ref({
 // ==================== 生命周期钩子 ====================
 onMounted(async () => {
   if (!userStore.userId) {
-    console.log("userId 为空，跳过获取用户信息");
+    console.log("用户未登录，跳过数据获取");
     return;
   }
 
-  // 检查用户信息是否已加载，如果没有则获取
-  if (!userStore.userInfo) {
-    await getUserInfo();
-  }
-
-  // 检查系统标签是否已加载，如果没有则获取
-  if (userStore.systemTags.length === 0) {
-    try {
-      await userStore.fetchSystemTags();
-      console.log("系统标签加载完成");
-    } catch (error) {
-      console.error("获取系统标签失败:", error);
+  try {
+    // 1. 检查用户信息是否已加载
+    if (!userStore.userInfo) {
+      await userStore.getUserInfo();
     }
-  }
 
-  // TODO: 获取用户统计数据
-  // await getUserStats();
+    // 2. 检查系统标签是否已加载
+    if (userStore.systemTags.length === 0) {
+      await userStore.fetchSystemTags();
+    }
+
+    // 3. 检查用户标签是否已加载
+    if (userStore.userTags.length === 0 && userStore.systemTags.length > 0) {
+      await userStore.fetchUserTags();
+    }
+
+    // 4. 获取用户统计数据
+    // TODO: 实现用户统计数据获取
+    // await getUserStats();
+  } catch (error) {
+    console.error("初始化用户数据失败:", error);
+    showToast({
+      message: "加载用户数据失败",
+      type: "fail",
+    });
+  }
 });
-
-// ==================== 数据获取方法 ====================
-// 获取用户信息
-const getUserInfo = async () => {
-  try {
-    await userStore.getUserInfo();
-  } catch (error) {
-    console.error("获取用户信息失败:", error);
-    showToast({
-      message: "获取用户信息失败",
-      type: "fail",
-    });
-  }
-};
-
-// 获取用户统计数据
-const getUserStats = async () => {
-  try {
-    // TODO: 调用获取用户统计数据接口
-    // const data = await getUserStatsApi(userStore.userInfo.id);
-    // userStats.value = data;
-  } catch (error) {
-    console.error("获取用户统计数据失败:", error);
-    showToast({
-      message: "获取统计数据失败",
-      type: "fail",
-    });
-  }
-};
 
 // ==================== 事件处理方法 ====================
 // 签到
 const handleSignIn = async () => {
-  if (userStats.value.todaySignIn) return;
+  if (userStats.value.todaySignIn) {
+    showToast("今日已签到");
+    return;
+  }
 
-  // TODO: 实现签到功能
-  userStats.value.todaySignIn = true;
-  const signInDays = userStore.userInfo?.consecutiveSignInDays + 1;
-  const params = {
-    apiRequest: {
-      userId: userStore.userInfo.id,
-      consecutiveSignInDays: signInDays,
-    },
-  };
-  await updateUserInfo(params);
-  showToast({
-    message: "签到成功",
-    icon: "success",
-  });
+  try {
+    // TODO: 实现签到功能
+    userStats.value.todaySignIn = true;
+    const signInDays = userStore.userInfo?.consecutiveSignInDays + 1;
+    const params = {
+      apiRequest: {
+        userId: userStore.userInfo.id,
+        consecutiveSignInDays: signInDays,
+      },
+    };
+    await updateUserInfo(params);
+    showToast({
+      message: "签到成功",
+      icon: "success",
+    });
+  } catch (error) {
+    console.error("签到失败:", error);
+    userStats.value.todaySignIn = false;
+    showToast({
+      message: "签到失败，请重试",
+      type: "fail",
+    });
+  }
 };
 
 // 成为店员
@@ -627,7 +619,7 @@ const handleOnlineChange = async (value) => {
     });
   } catch (error) {
     console.error("更新在线状态失败:", error);
-    online.value = !value;
+    online.value = !value; // 恢复原状态
     showToast({
       message: "状态更新失败",
       type: "fail",
@@ -638,7 +630,7 @@ const handleOnlineChange = async (value) => {
 // ==================== 工具方法 ====================
 // 图片加载错误处理
 const onImageError = (error) => {
-  console.error("Image load error:", error);
+  console.error("图片加载失败:", error);
 };
 
 // 更新在线状态的 API 调用

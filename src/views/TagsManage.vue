@@ -8,7 +8,7 @@
         <div class="flex flex-wrap gap-2">
           <div
             v-for="(tag, index) in selectedTags"
-            :key="index"
+            :key="tag?.id || index"
             class="px-3 py-1.5 bg-brand-50 rounded-full flex items-center group"
             @click="removeTag(tag)"
           >
@@ -32,48 +32,20 @@
         <div class="text-surface-600 font-medium mb-4">推荐标签</div>
         <div class="flex flex-wrap gap-2">
           <div
-            v-for="tag in recommendTags"
+            v-for="tag in systemTags"
             :key="tag.id"
-            class="px-3 py-1.5 bg-surface-50 rounded-full cursor-pointer transition-colors duration-300"
+            class="px-3 py-1.5 rounded-full cursor-pointer transition-colors duration-300"
+            :class="isTagSelected(tag) ? 'bg-brand-50' : 'bg-surface-50'"
             @click="toggleTag(tag)"
           >
             <span
               class="text-sm"
-              :class="{ 'text-brand-500': selectedTags.includes(tag) }"
+              :class="{ 'text-brand-500': isTagSelected(tag) }"
               >{{ tag.tag }}</span
             >
           </div>
-        </div>
-      </div>
-
-      <!-- 自定义标签 -->
-      <div class="mt-6 bg-white rounded-2xl p-6 shadow-lg">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-surface-600 font-medium">自定义标签</span>
-          <van-tag type="primary" size="medium" round>会员功能</van-tag>
-        </div>
-        <div class="space-y-4">
-          <van-field
-            v-model="customTag"
-            placeholder="输入自定义标签（不超过10字）"
-            :rules="[{ pattern: /^[^\s]{1,10}$/, message: '标签长度1-10字' }]"
-            :disabled="false"
-            class="custom-field"
-          >
-            <template #button>
-              <van-button
-                size="small"
-                type="primary"
-                class="add-btn"
-                :disabled="false"
-                @click="handleAddCustomTag"
-              >
-                添加
-              </van-button>
-            </template>
-          </van-field>
-          <div v-if="!isVip" class="text-sm text-surface-400">
-            开通会员即可使用自定义标签功能
+          <div v-if="!systemTags.length" class="text-sm text-surface-400 py-4">
+            加载系统标签中...
           </div>
         </div>
       </div>
@@ -104,116 +76,76 @@ import { updateUserTag } from "@/api/system";
 const router = useRouter();
 const userStore = useUserStore();
 const submitting = ref(false);
-const customTag = ref("");
-const isVip = computed(() => userStore.userInfo?.isVip || false);
 
-// 已选标签
-const selectedTags = ref(userStore.userTags || []);
+// 已选标签 - 使用本地状态管理，方便修改
+const selectedTags = ref([]);
 
-// 推荐标签列表
-const recommendTags = ref(userStore.systemTags || []);
+// 初始化已选标签
+onMounted(() => {
+  // 从store中获取用户已选标签
+  if (userStore.userTags && userStore.userTags.length > 0) {
+    selectedTags.value = [...userStore.userTags];
+  }
+
+  // 如果系统标签为空，则尝试获取
+  if (userStore.systemTags.length === 0) {
+    fetchSystemTags();
+  }
+});
 
 // 获取系统标签
 const fetchSystemTags = async () => {
   try {
-    // 如果store中已有标签数据，直接使用
-    if (userStore.systemTags.length > 0) {
-      recommendTags.value = userStore.systemTags;
-      selectedTags.value = userStore.userTags;
-    } else {
-      // 否则从服务器获取
-      await userStore.fetchSystemTags();
-      recommendTags.value = userStore.systemTags;
-      selectedTags.value = userStore.userTags;
-    }
-    console.log("系统标签:", recommendTags.value);
-    console.log("已选标签:", selectedTags.value);
+    await userStore.fetchSystemTags();
+    console.log("系统标签加载完成:", userStore.systemTags);
   } catch (error) {
     console.error("获取系统标签失败:", error);
     showToast({
       message: "获取标签列表失败",
-      type: "error",
+      type: "fail",
     });
   }
 };
 
-onMounted(() => {
-  // 页面加载时获取系统标签
-  fetchSystemTags();
-});
+// 系统标签列表
+const systemTags = computed(() => userStore.systemTags);
+
+// 检查标签是否已选择
+const isTagSelected = (tag) => {
+  return selectedTags.value.some((t) => t.id === tag.id);
+};
 
 // 切换标签
 const toggleTag = (tag) => {
-  const index = selectedTags.value.findIndex((t) => t.tag === tag.tag);
-  if (index > -1) {
-    selectedTags.value.splice(index, 1);
-  } else if (selectedTags.value.length < 5) {
-    selectedTags.value.push(tag);
+  if (isTagSelected(tag)) {
+    removeTag(tag);
   } else {
+    addTag(tag);
+  }
+};
+
+// 添加标签
+const addTag = (tag) => {
+  if (selectedTags.value.length >= 5) {
     showToast({
       message: "最多选择5个标签",
       type: "warning",
     });
+    return;
+  }
+
+  // 检查是否已存在
+  if (!isTagSelected(tag)) {
+    selectedTags.value.push(tag);
   }
 };
 
 // 移除标签
 const removeTag = (tag) => {
-  const index = selectedTags.value.indexOf(tag);
+  const index = selectedTags.value.findIndex((t) => t.id === tag.id);
   if (index > -1) {
     selectedTags.value.splice(index, 1);
   }
-};
-
-// 添加自定义标签
-const handleAddCustomTag = async () => {
-  const tag = customTag.value.trim();
-
-  // 检查标签是否合法
-  if (!tag) {
-    showToast({ message: "请输入标签内容", type: "warning" });
-    return;
-  }
-
-  if (tag.length > 10) {
-    showToast({ message: "标签最多10个字", type: "warning" });
-    return;
-  }
-
-  // 检查是否包含敏感词
-  // TODO: 后端接口开发中，暂时使用本地敏感词列表
-  /*
-  try {
-    const { data: sensitiveWords } = await getSensitiveWords();
-    if (sensitiveWords.some((word) => tag.includes(word))) {
-      showToast({ message: "标签包含不当词语", type: "warning" });
-      return;
-    }
-  } catch (error) {
-    console.error("获取敏感词失败:", error);
-  }
-  */
-  const sensitiveWords = ["傻", "笨", "滚", "死", "操", "草"];
-  if (sensitiveWords.some((word) => tag.includes(word))) {
-    showToast({ message: "标签包含不当词语", type: "warning" });
-    return;
-  }
-
-  // 检查是否重复
-  if (selectedTags.value.includes(tag)) {
-    showToast({ message: "标签已存在", type: "warning" });
-    return;
-  }
-
-  // 添加标签
-  if (selectedTags.value.length >= 5) {
-    showToast({ message: "最多选择5个标签", type: "warning" });
-    return;
-  }
-
-  selectedTags.value.push(tag);
-  customTag.value = "";
-  showToast({ message: "添加成功", type: "success" });
 };
 
 // 保存标签
@@ -234,17 +166,20 @@ const handleSave = async () => {
     };
     console.log("保存标签:", params);
     await updateUserTag(params);
+
     // 更新store中的用户标签
     userStore.updateUserTags(selectedTags.value);
+
     showToast({
       message: "保存成功",
       type: "success",
     });
     router.back();
   } catch (error) {
+    console.error("保存标签失败:", error);
     showToast({
       message: "保存失败，请重试",
-      type: "error",
+      type: "fail",
     });
   } finally {
     submitting.value = false;
@@ -263,17 +198,5 @@ const handleSave = async () => {
 
 .btn-primary :deep(.van-button__text) {
   @apply text-white font-medium text-base;
-}
-
-.custom-field :deep(.van-field__control) {
-  @apply bg-surface-50 rounded-lg px-3 py-2;
-}
-
-.add-btn {
-  @apply ml-2 bg-brand-500 border-none;
-}
-
-.add-btn:active {
-  @apply opacity-90;
 }
 </style>

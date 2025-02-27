@@ -75,27 +75,42 @@ export const useUserStore = defineStore("user", {
     // 获取系统标签
     async fetchSystemTags() {
       try {
-        if (!this.userId) {
-          console.warn("尝试获取系统标签但 userId 为空");
-          return null;
-        }
-
         const res = await getDefaultTags({ userId: "" });
         console.log("获取系统标签:", res);
-
         if (res) {
-          const { sysTagInfo = [], userTagInfo = [] } = res;
+          console.log("res", res);
+          const { sysTagInfo = [] } = res;
           this.systemTags = sysTagInfo;
-
-          // 将用户标签ID转换为完整的标签对象
-          this.userTags = userTagInfo
-            .map((tagId) => sysTagInfo.find((tag) => tag.id === tagId))
-            .filter(Boolean); // 过滤掉可能的undefined
         }
 
         return res;
       } catch (error) {
         console.error("获取系统标签失败:", error);
+        return null;
+      }
+    },
+
+    // 获取用户已经选择的标签
+    async fetchUserTags() {
+      try {
+        if (!this.userId) {
+          console.warn("尝试获取用户标签但 userId 为空");
+          return null;
+        }
+
+        const res = await getUserTags({ userId: this.userId });
+        const { userTagInfo = [] } = res;
+        console.log("获取用户标签:", res);
+
+        if (res) {
+          this.userTags = userTagInfo.map((tagId) =>
+            this.systemTags.find((tag) => tag.id === tagId)
+          );
+        } else {
+          this.userTags = [];
+        }
+      } catch (error) {
+        console.error("获取用户标签失败:", error);
         return null;
       }
     },

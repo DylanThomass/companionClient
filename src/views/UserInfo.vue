@@ -72,11 +72,13 @@
               </van-image>
               <!-- 标签角标 -->
               <div
-                v-if="userTags[0]"
+                v-if="userStore.userTags && userStore.userTags.length > 0"
                 style="transform: rotate(-12deg)"
                 class="absolute -bottom-2 right-0 px-2 py-1 bg-white rounded-full shadow-lg cursor-pointer group"
               >
-                <span class="text-xs text-brand-500"> #{{ userTags[0] }} </span>
+                <span class="text-xs text-brand-500">
+                  #{{ userStore.userTags[0]?.tag || "" }}
+                </span>
               </div>
             </div>
 
@@ -477,15 +479,6 @@ const sellerStats = ref({
   monthIncome: 6666, // 本月收入
   totalIncome: 88888, // 总收入
 });
-
-// 用户标签
-const userTags = ref([
-  // TODO: 从后端获取用户标签
-  "乐观开朗",
-  "善解人意",
-  "倾听者",
-  "温暖治愈",
-]);
 
 // 在线状态
 const online = ref(true);

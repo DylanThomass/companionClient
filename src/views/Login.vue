@@ -82,7 +82,7 @@ const handleClearCache = () => {
       message: "缓存已清理",
       onClose: () => {
         // 刷新页面
-        window.location.reload();
+        // window.location.reload();
       },
     });
   } catch (error) {

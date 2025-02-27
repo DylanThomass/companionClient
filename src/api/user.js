@@ -5,12 +5,12 @@ import request from "@/utils/request";
  * @param {string} openid - 用户 openid
  * @returns {Promise<Object>} 用户信息
  */
-export function getUserInfo(openid) {
-  console.log("获取用户信息，openid:", openid);
+export function getUserInfo(userId) {
+  console.log("获取用户信息，userId:", userId);
   return request({
     url: "/selectUser",
     method: "post",
-    data: { openId: openid },
+    data: { userId },
   });
 }
 
@@ -23,6 +23,9 @@ export function updateUserInfo(data) {
   return request({
     url: "/updateUser",
     method: "post",
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
     data,
   });
 }

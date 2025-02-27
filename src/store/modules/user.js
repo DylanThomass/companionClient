@@ -1,15 +1,22 @@
 import { defineStore } from "pinia";
 import { wxLogin } from "@/api/wx";
 import { getUserInfo } from "@/api/user";
+import { getDefaultTags } from "@/api/system";
 import { MOCK_SELLER_USER, MOCK_NORMAL_USER } from "@/mock";
+import { IMAGE_BASE_URL } from "@/utils/request";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
     token: "",
     openid: "",
+    userId: "",
     userInfo: null,
     // 默认使用普通用户数据
     role: 1,
+    // 系统标签
+    systemTags: [],
+    // 用户已选标签
+    userTags: [],
   }),
 
   actions: {
@@ -27,14 +34,18 @@ export const useUserStore = defineStore("user", {
       const data = await wxLogin(code);
       this.token = data.token;
       this.openid = data.accessToken;
+      this.userId = data.userId;
       return data;
     },
 
     logout() {
       this.token = "";
       this.openid = "";
+      this.userId = "";
       this.userInfo = null;
       this.role = 1;
+      this.systemTags = [];
+      this.userTags = [];
       localStorage.clear();
     },
 
@@ -50,14 +61,48 @@ export const useUserStore = defineStore("user", {
         return mockData;
       }
 
-      if (!this.openid) {
-        console.warn("尝试获取用户信息但 openid 为空");
+      if (!this.userId) {
+        console.warn("尝试获取用户信息但 userId 为空");
         return null;
       }
-      const data = await getUserInfo(this.openid);
+      const data = await getUserInfo(this.userId);
+      console.log("getUserInfo", data);
       this.userInfo = data;
       this.role = data.role;
       return data;
+    },
+
+    // 获取系统标签
+    async fetchSystemTags() {
+      try {
+        if (!this.userId) {
+          console.warn("尝试获取系统标签但 userId 为空");
+          return null;
+        }
+
+        const res = await getDefaultTags({ userId: "" });
+        console.log("获取系统标签:", res);
+
+        if (res) {
+          const { sysTagInfo = [], userTagInfo = [] } = res;
+          this.systemTags = sysTagInfo;
+
+          // 将用户标签ID转换为完整的标签对象
+          this.userTags = userTagInfo
+            .map((tagId) => sysTagInfo.find((tag) => tag.id === tagId))
+            .filter(Boolean); // 过滤掉可能的undefined
+        }
+
+        return res;
+      } catch (error) {
+        console.error("获取系统标签失败:", error);
+        return null;
+      }
+    },
+
+    // 更新用户标签（本地状态更新，不调用API）
+    updateUserTags(tags) {
+      this.userTags = tags;
     },
 
     // 切换测试用户类型
@@ -69,6 +114,13 @@ export const useUserStore = defineStore("user", {
         this.userInfo = MOCK_NORMAL_USER;
         this.role = 1;
       }
+    },
+
+    updateUserAvatar(avatarUrl) {
+      const fullAvatarUrl = avatarUrl.startsWith("http")
+        ? avatarUrl
+        : `${IMAGE_BASE_URL}${avatarUrl}`;
+      this.userInfo.avatarUrl = fullAvatarUrl;
     },
   },
 

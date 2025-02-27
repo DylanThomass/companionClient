@@ -21,7 +21,7 @@ onMounted(async () => {
   try {
     // 获取 URL 中的 code 参数
     const { code } = route.query;
-    
+
     console.log("code", code);
 
     if (!code) {
@@ -35,6 +35,7 @@ onMounted(async () => {
 
     // // 保存用户信息和 token
     // userStore.setUserInfo(data.userInfo);
+    console.log("data.token", data.token);
     userStore.setToken(data.token);
 
     // 跳转到原来的页面或首页

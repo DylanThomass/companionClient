@@ -7,7 +7,7 @@ import router from "@/router";
 const NO_TOKEN_WHITELIST = [
   "/wx/config", // 微信配置接口
   "/wx/login", // 微信登录接口
-  "/health", // 健康检查接口
+  "/health", // 健康检查接口,
 ];
 
 // 响应码
@@ -17,6 +17,10 @@ const ResponseCode = {
   NOT_FOUND: "4040",
   SERVER_ERROR: "5000",
 };
+
+// 添加图片服务器基础地址
+export const IMAGE_BASE_URL =
+  process.env.VUE_APP_IMAGE_SERVER_URL || "http://companion.cpolar.top";
 
 // 创建 axios 实例
 const service = axios.create({

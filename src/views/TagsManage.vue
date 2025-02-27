@@ -7,12 +7,12 @@
         <div class="text-surface-600 font-medium mb-4">已选标签</div>
         <div class="flex flex-wrap gap-2">
           <div
-            v-for="tag in selectedTags"
-            :key="tag"
+            v-for="(tag, index) in selectedTags"
+            :key="index"
             class="px-3 py-1.5 bg-brand-50 rounded-full flex items-center group"
             @click="removeTag(tag)"
           >
-            <span class="text-sm text-brand-500">{{ tag }}</span>
+            <span class="text-sm text-brand-500">{{ tag?.tag }}</span>
             <van-icon
               name="cross"
               class="ml-1 text-xs text-brand-400 group-hover:text-brand-500"
@@ -33,16 +33,15 @@
         <div class="flex flex-wrap gap-2">
           <div
             v-for="tag in recommendTags"
-            :key="tag"
+            :key="tag.id"
             class="px-3 py-1.5 bg-surface-50 rounded-full cursor-pointer transition-colors duration-300"
-            :class="[
-              selectedTags.includes(tag)
-                ? 'bg-brand-50 text-brand-500'
-                : 'text-surface-600 hover:bg-surface-100',
-            ]"
             @click="toggleTag(tag)"
           >
-            <span class="text-sm">{{ tag }}</span>
+            <span
+              class="text-sm"
+              :class="{ 'text-brand-500': selectedTags.includes(tag) }"
+              >{{ tag.tag }}</span
+            >
           </div>
         </div>
       </div>
@@ -58,7 +57,7 @@
             v-model="customTag"
             placeholder="输入自定义标签（不超过10字）"
             :rules="[{ pattern: /^[^\s]{1,10}$/, message: '标签长度1-10字' }]"
-            :disabled="!isVip"
+            :disabled="false"
             class="custom-field"
           >
             <template #button>
@@ -66,7 +65,7 @@
                 size="small"
                 type="primary"
                 class="add-btn"
-                :disabled="!isVip || !customTag"
+                :disabled="false"
                 @click="handleAddCustomTag"
               >
                 添加
@@ -96,11 +95,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { showToast } from "vant";
 import { useUserStore } from "@/store/modules/user";
-import { getDictByType, getSensitiveWords } from "@/api/system";
+import { updateUserTag } from "@/api/system";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -109,36 +108,26 @@ const customTag = ref("");
 const isVip = computed(() => userStore.userInfo?.isVip || false);
 
 // 已选标签
-const selectedTags = ref(userStore.userInfo?.tags || []);
+const selectedTags = ref(userStore.userTags || []);
 
 // 推荐标签列表
-const recommendTags = ref([]);
+const recommendTags = ref(userStore.systemTags || []);
 
 // 获取系统标签
 const fetchSystemTags = async () => {
   try {
-    // TODO: 后端接口开发中，暂时使用模拟数据
-    /*
-    const { data } = await getDictByType("USER_TAGS");
-    // 处理返回的数据字典
-    if (Array.isArray(data)) {
-      recommendTags.value = data
-        .filter((item) => item.status === "0") // 只使用启用的标签
-        .map((item) => item.label || item.dictLabel);
+    // 如果store中已有标签数据，直接使用
+    if (userStore.systemTags.length > 0) {
+      recommendTags.value = userStore.systemTags;
+      selectedTags.value = userStore.userTags;
+    } else {
+      // 否则从服务器获取
+      await userStore.fetchSystemTags();
+      recommendTags.value = userStore.systemTags;
+      selectedTags.value = userStore.userTags;
     }
-    */
-    recommendTags.value = [
-      "乐观开朗",
-      "善解人意",
-      "倾听者",
-      "温暖治愈",
-      "细心周到",
-      "耐心细致",
-      "阳光活力",
-      "知心姐姐",
-      "贴心暖男",
-      "情感专家",
-    ];
+    console.log("系统标签:", recommendTags.value);
+    console.log("已选标签:", selectedTags.value);
   } catch (error) {
     console.error("获取系统标签失败:", error);
     showToast({
@@ -148,12 +137,14 @@ const fetchSystemTags = async () => {
   }
 };
 
-// 页面加载时获取系统标签
-fetchSystemTags();
+onMounted(() => {
+  // 页面加载时获取系统标签
+  fetchSystemTags();
+});
 
 // 切换标签
 const toggleTag = (tag) => {
-  const index = selectedTags.value.indexOf(tag);
+  const index = selectedTags.value.findIndex((t) => t.tag === tag.tag);
   if (index > -1) {
     selectedTags.value.splice(index, 1);
   } else if (selectedTags.value.length < 5) {
@@ -237,10 +228,14 @@ const handleSave = async () => {
 
   submitting.value = true;
   try {
-    // TODO: 后端接口开发中，暂时使用延时模拟
-    // 1. 实现保存标签接口 POST /user/tags
-    // 2. 更新用户信息缓存
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const params = {
+      userId: userStore.userId,
+      tagList: selectedTags.value.map((tag) => tag.id),
+    };
+    console.log("保存标签:", params);
+    await updateUserTag(params);
+    // 更新store中的用户标签
+    userStore.updateUserTags(selectedTags.value);
     showToast({
       message: "保存成功",
       type: "success",

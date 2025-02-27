@@ -59,8 +59,8 @@
                   direction="horizontal"
                   class="custom-radio-group"
                 >
-                  <van-radio :name="1" checked-color="#14b8a6">男</van-radio>
-                  <van-radio :name="0" checked-color="#14b8a6">女</van-radio>
+                  <van-radio :name="0" checked-color="#14b8a6">男</van-radio>
+                  <van-radio :name="1" checked-color="#14b8a6">女</van-radio>
                 </van-radio-group>
               </template>
             </van-field>
@@ -180,7 +180,10 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/modules/user";
 import { showToast } from "vant";
 import { areaList } from "@vant/area-data";
-// import { updateUserInfo } from "@/api/user";
+import { base64ToFile } from "@/utils/file";
+import { chooseImage, getLocalImgUrl } from "@/utils/wx-sdk";
+import { updateUserInfo } from "@/api/user";
+
 const router = useRouter();
 const userStore = useUserStore();
 
@@ -188,10 +191,11 @@ const userStore = useUserStore();
 const DEFAULT_AVATAR =
   "https://mcs-mimp-web.sf-express.com/wemp/uploadFiles/default-avatar.png";
 
+console.log("userStore.userInfo", userStore.userInfo.sex);
 // 表单数据
 const formData = ref({
   nickname: userStore.userInfo?.nickname || "",
-  sex: userStore.userInfo?.sex || 1,
+  sex: userStore.userInfo?.sex ?? 1,
   province: userStore.userInfo?.province || "",
   city: userStore.userInfo?.city || "",
   location: userStore.userInfo?.province
@@ -232,43 +236,47 @@ const onConfirmArea = ({ selectedOptions }) => {
 
 // 编辑头像
 const handleEditAvatar = async () => {
-  // TODO: 实现头像上传功能
-  // try {
-  //   const res = await chooseImage();
-  //   console.log("选择图片返回:", res);
-  //   const localImgUrl = await getLocalImgUrl(res[0]);
-  //   console.log("本地图片 base64:", localImgUrl.slice(0, 50) + "..."); // 只打印开头部分避免日志过长
-  //   const file = base64ToFile(localImgUrl);
-  //   console.log("转换后的文件:", {
-  //     name: file.name,
-  //     size: file.size,
-  //     type: file.type,
-  //     lastModified: file.lastModified,
-  //   });
-  //   // 验证文件是否有效
-  //   if (!(file instanceof File) || file.size === 0) {
-  //     throw new Error("文件转换失败");
-  //   }
-  //   // 创建 FormData 对象
-  //   const formData = new FormData();
-  //   formData.append("avatar", file);
-  //   const result = await updateUserInfo(formData);
-  //   console.log("上传结果:", result);
-  //   // 更新头像显示
-  //   if (result.avatarUrl) {
-  //     userStore.updateUserAvatar(result.avatarUrl);
-  //   }
-  //   showToast({
-  //     message: "头像更新成功",
-  //     type: "success",
-  //   });
-  // } catch (error) {
-  //   console.error("头像上传失败:", error);
-  //   showToast({
-  //     message: error.message || "头像上传失败",
-  //     type: "fail",
-  //   });
-  // }
+  try {
+    const res = await chooseImage();
+    const localImgUrl = await getLocalImgUrl(res[0]);
+    const file = base64ToFile(localImgUrl);
+
+    // 验证文件是否有效
+    if (!(file instanceof File) || file.size === 0) {
+      throw new Error("文件转换失败");
+    }
+
+    const apiRequest = {
+      userId: userStore.userId,
+    };
+    const newFormData = new FormData();
+    newFormData.append("avatar", file);
+    newFormData.append("apiRequest", JSON.stringify(apiRequest));
+
+    const result = await updateUserInfo(newFormData);
+    console.log("上传结果:", result);
+
+    // // 更新头像显示
+    // if (result.avatarUrl) {
+    //   // 处理返回的相对路径，添加图片服务器基础地址
+    //   const fullAvatarUrl = result.avatarUrl.startsWith("http")
+    //     ? result.avatarUrl
+    //     : `${IMAGE_BASE_URL}${result.avatarUrl}`;
+    //   userStore.updateUserAvatar(fullAvatarUrl);
+    // }
+
+    showToast({
+      message: "头像更新成功",
+      type: "success",
+    });
+    router.back();
+  } catch (error) {
+    console.error("头像上传失败:", error);
+    showToast({
+      message: error.message || "头像上传失败",
+      type: "fail",
+    });
+  }
 };
 
 // 生成年月日选择器的列
@@ -308,6 +316,15 @@ const onBirthdayConfirm = (values) => {
 const onSubmit = async () => {
   submitting.value = true;
   try {
+    const apiRequest = {
+      ...formData.value,
+      userId: userStore.userId,
+    };
+    const newFormData = new FormData();
+    newFormData.append("apiRequest", JSON.stringify(apiRequest));
+    newFormData.append("avatar", formData.value.avatar);
+    const result = await updateUserInfo(newFormData);
+    console.log("更新用户信息结果:", result);
     // TODO: 实现用户信息更新
     // 1. 调用后端更新接口
     // 2. 更新本地 store 数据
@@ -319,7 +336,6 @@ const onSubmit = async () => {
       type: "success",
       icon: "success",
     });
-    router.back();
   } catch (error) {
     console.error("更新用户信息失败:", error);
     showToast({

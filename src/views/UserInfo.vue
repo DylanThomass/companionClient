@@ -164,7 +164,7 @@
               class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
             >
               <div class="text-lg font-semibold text-brand-500">
-                {{ userStats.signInDays }}
+                {{ userStore.userInfo?.consecutiveSignInDays }}
               </div>
               <div
                 class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
@@ -404,6 +404,7 @@ import { useUserStore } from "@/store/modules/user";
 import { showToast, showDialog } from "vant";
 import { calculateUserLevel } from "@/mock";
 import { isWxEnv } from "@/utils/wx-sdk";
+import { updateUserInfo } from "@/api/user";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -429,8 +430,8 @@ const getUserInfo = async () => {
 };
 
 onMounted(async () => {
-  if (!userStore.openid) {
-    console.log("openid 为空，跳过获取用户信息");
+  if (!userStore.userId) {
+    console.log("userId 为空，跳过获取用户信息");
     return;
   }
   await getUserInfo();
@@ -490,14 +491,21 @@ const userTags = ref([
 const online = ref(true);
 
 // 签到
-const handleSignIn = () => {
+const handleSignIn = async () => {
   if (userStats.value.todaySignIn) return;
   // TODO: 实现签到功能
   // 1. 调用签到接口
   // 2. 更新签到状态和天数
   // 3. 获取签到奖励
   userStats.value.todaySignIn = true;
-  userStats.value.signInDays++;
+  const signInDays = userStore.userInfo?.consecutiveSignInDays + 1;
+  const params = {
+    apiRequest: {
+      userId: userStore.userInfo.id,
+      consecutiveSignInDays: signInDays,
+    },
+  };
+  await updateUserInfo(params);
   showToast({
     message: "签到成功",
     icon: "success",

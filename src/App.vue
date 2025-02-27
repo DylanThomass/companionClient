@@ -15,16 +15,22 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { ref, onMounted, provide } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { initWxConfig, isWxEnv } from "@/utils/wx-sdk";
 import { showToast } from "vant";
+import { useUserStore } from "@/store/modules/user";
 
 // 应用配置
 const appTitle = process.env.VUE_APP_TITLE || "Companion";
 
 const router = useRouter();
 const route = useRoute();
+const userStore = useUserStore();
+const appReady = ref(false);
+
+// 提供全局状态
+provide("appReady", appReady);
 
 const onClickLeft = () => {
   // 如果是首页，不显示返回按钮
@@ -35,42 +41,29 @@ const onClickLeft = () => {
 };
 
 onMounted(async () => {
-  console.log("App mounted, 准备初始化微信配置");
-  try {
-    // 获取当前页面 URL
-    const url =
-      process.env.NODE_ENV === "development"
-        ? window.location.href.replace("https://", "http://")
-        : window.location.href;
+  console.log("App mounted");
 
-    await initWxConfig(url, [
-      "updateAppMessageShareData",
-      "updateTimelineShareData",
-      "chooseImage",
-      "getLocation",
-    ]);
-    console.log("微信配置初始化完成");
-  } catch (error) {
-    console.error("微信配置初始化失败:", {
-      message: error.message,
-      config: error.config,
-      status: error.response?.status,
-      data: error.response?.data,
-    });
-
-    // 建议添加更具体的错误类型判断
-    const errorMessage =
-      error.response?.status === 401
-        ? "微信授权失败，请重新登录"
-        : "微信初始化失败，请刷新重试";
-
-    if (process.env.NODE_ENV !== "development") {
-      showToast({
-        message: errorMessage,
-        type: "fail",
-      });
+  // 初始化微信配置
+  if (isWxEnv()) {
+    try {
+      await initWxConfig();
+    } catch (error) {
+      console.error("初始化微信配置失败:", error);
     }
   }
+
+  // 如果已登录，获取用户信息
+  if (userStore.isLoggedIn) {
+    try {
+      await userStore.getUserInfo();
+      // 获取系统标签
+      await userStore.fetchSystemTags();
+    } catch (error) {
+      console.error("获取用户信息失败:", error);
+    }
+  }
+
+  appReady.value = true;
 });
 </script>
 

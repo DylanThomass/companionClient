@@ -74,7 +74,7 @@
               <div
                 v-if="userStore.userTags && userStore.userTags.length > 0"
                 style="transform: rotate(-12deg)"
-                class="absolute -bottom-2 right-0 px-2 py-1 bg-white rounded-full shadow-lg cursor-pointer group"
+                class="absolute -bottom-2 right-0 px-2 py-1 bg-white rounded-full shadow-lg"
               >
                 <span class="text-xs text-brand-500">
                   #{{ userStore.userTags[0]?.tag || "" }}
@@ -412,33 +412,15 @@ const router = useRouter();
 const userStore = useUserStore();
 const activeNames = ref([]);
 
+// ==================== 环境与状态 ====================
 // 是否是开发环境
 const isDev = computed(() => process.env.NODE_ENV === "development");
-
 // 是否是微信环境
 const isWx = computed(() => isWxEnv());
+// 在线状态
+const online = ref(true);
 
-// 获取用户信息
-const getUserInfo = async () => {
-  try {
-    await userStore.getUserInfo();
-  } catch (error) {
-    console.error("获取用户信息失败:", error);
-    showToast({
-      message: "获取用户信息失败",
-      type: "fail",
-    });
-  }
-};
-
-onMounted(async () => {
-  if (!userStore.userId) {
-    console.log("userId 为空，跳过获取用户信息");
-    return;
-  }
-  await getUserInfo();
-});
-
+// ==================== 用户数据 ====================
 // 头像地址
 const avatarUrl = computed(() => userStore.userInfo?.avatarUrl);
 
@@ -457,7 +439,55 @@ const userStats = ref({
   todaySignIn: false,
 });
 
-// TODO: 从后端获取用户统计数据
+// 店员统计信息
+const sellerStats = ref({
+  pendingOrders: 5, // 待处理订单数
+  todayIncome: 888, // 今日收入
+  monthIncome: 6666, // 本月收入
+  totalIncome: 88888, // 总收入
+});
+
+// ==================== 生命周期钩子 ====================
+onMounted(async () => {
+  if (!userStore.userId) {
+    console.log("userId 为空，跳过获取用户信息");
+    return;
+  }
+
+  // 检查用户信息是否已加载，如果没有则获取
+  if (!userStore.userInfo) {
+    await getUserInfo();
+  }
+
+  // 检查系统标签是否已加载，如果没有则获取
+  if (userStore.systemTags.length === 0) {
+    try {
+      await userStore.fetchSystemTags();
+      console.log("系统标签加载完成");
+    } catch (error) {
+      console.error("获取系统标签失败:", error);
+    }
+  }
+
+  // TODO: 获取用户统计数据
+  // await getUserStats();
+});
+
+// ==================== 数据获取方法 ====================
+// 获取用户信息
+const getUserInfo = async () => {
+  try {
+    await userStore.getUserInfo();
+  } catch (error) {
+    console.error("获取用户信息失败:", error);
+    showToast({
+      message: "获取用户信息失败",
+      type: "fail",
+    });
+  }
+};
+
+// 获取用户统计数据
 const getUserStats = async () => {
   try {
     // TODO: 调用获取用户统计数据接口
@@ -472,24 +502,12 @@ const getUserStats = async () => {
   }
 };
 
-// 店员统计信息
-const sellerStats = ref({
-  pendingOrders: 5, // 待处理订单数
-  todayIncome: 888, // 今日收入
-  monthIncome: 6666, // 本月收入
-  totalIncome: 88888, // 总收入
-});
-
-// 在线状态
-const online = ref(true);
-
+// ==================== 事件处理方法 ====================
 // 签到
 const handleSignIn = async () => {
   if (userStats.value.todaySignIn) return;
+
   // TODO: 实现签到功能
-  // 1. 调用签到接口
-  // 2. 更新签到状态和天数
-  // 3. 获取签到奖励
   userStats.value.todaySignIn = true;
   const signInDays = userStore.userInfo?.consecutiveSignInDays + 1;
   const params = {
@@ -508,8 +526,6 @@ const handleSignIn = async () => {
 // 成为店员
 const handleBecomeSeller = () => {
   // TODO: 实现店员申请功能
-  // 1. 调用申请接口
-  // 2. 处理审核流程
   showToast({
     message: "申请已提交",
     icon: "success",
@@ -532,11 +548,6 @@ const handleLogout = () => {
 
 // 编辑用户资料
 const handleEdit = () => {
-  router.push("/user/edit");
-};
-
-// 编辑头像
-const handleEditAvatar = () => {
   router.push("/user/edit");
 };
 
@@ -575,9 +586,6 @@ const handleClearCache = () => {
   })
     .then(() => {
       // TODO: 实现缓存清理功能
-      // 1. 清理本地存储
-      // 2. 清理应用缓存
-      // 3. 重新加载必要数据
       userStore.logout();
       showToast({
         message: "缓存已清理",
@@ -595,10 +603,6 @@ const handleManageTags = () => {
 // 收入统计
 const handleIncome = () => {
   router.push("/seller/income");
-};
-
-const onImageError = (error) => {
-  console.error("Image load error:", error);
 };
 
 // 处理店员相关动作
@@ -629,6 +633,12 @@ const handleOnlineChange = async (value) => {
       type: "fail",
     });
   }
+};
+
+// ==================== 工具方法 ====================
+// 图片加载错误处理
+const onImageError = (error) => {
+  console.error("Image load error:", error);
 };
 
 // 更新在线状态的 API 调用

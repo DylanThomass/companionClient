@@ -165,51 +165,60 @@
           :show-indicators="false"
           class="service-swipe"
         >
-          <van-swipe-item v-for="(services, type) in serviceTypes" :key="type">
+          <van-swipe-item
+            v-for="(service, index) in enabledServices"
+            :key="index"
+          >
             <div
               class="service-card"
               :class="{
                 'ring-2 ring-brand-500 ring-offset-2':
-                  selectedType?.name === services.name,
+                  selectedService?.id === service.id,
               }"
             >
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
                   <van-icon
-                    :name="services.icon"
+                    :name="service.icon"
                     class="text-lg text-brand-500"
                   />
-                  <span class="font-medium">{{ services.name }}</span>
+                  <span class="font-medium">{{ service.name }}</span>
                 </div>
-                <span class="text-xs text-surface-400">30分钟起</span>
+                <span class="text-xs text-surface-400"
+                  >{{ service.timeRanges[0].name }}起</span
+                >
+              </div>
+              <!-- 服务描述 -->
+              <div class="text-xs text-surface-500 mb-3">
+                {{ service.description }}
               </div>
               <div class="space-y-2">
                 <div
-                  v-for="(duration, index) in services.items"
+                  v-for="(timeRange, index) in service.timeRanges"
                   :key="index"
                   class="p-2 bg-white rounded-lg border border-surface-100 cursor-pointer relative"
                   :class="{
-                    'border-brand-500': isSelected(type, duration),
+                    'border-brand-500': isSelected(service, timeRange),
                     'hover:border-brand-200 active:bg-surface-50': !isSelected(
-                      type,
-                      duration
+                      service,
+                      timeRange
                     ),
                   }"
-                  @click="selectService(type, duration)"
+                  @click="selectService(service, timeRange)"
                 >
                   <div class="flex justify-between items-center">
                     <div>
-                      <div class="text-sm">{{ duration.name }}</div>
+                      <div class="text-sm">{{ timeRange.name }}</div>
                       <div class="mt-1 text-xs text-surface-400">
-                        {{ duration.time }}
+                        {{ service.name }}
                       </div>
                     </div>
                     <div class="text-brand-500 font-medium">
-                      ¥{{ duration.price }}
+                      ¥{{ timeRange.price }}
                     </div>
                   </div>
                   <div
-                    v-if="isSelected(type, duration)"
+                    v-if="isSelected(service, timeRange)"
                     class="absolute -top-1 -right-1 w-4 h-4 bg-brand-500 rounded-full flex items-center justify-center"
                   >
                     <van-icon name="success" class="text-white text-xs" />
@@ -228,15 +237,17 @@
         block
         :class="[
           'h-11 rounded-design text-base font-medium transition-colors duration-300',
-          selectedService
+          selectedTimeRange
             ? 'bg-brand-50 text-brand-500 border border-brand-100 hover:bg-brand-100'
             : 'bg-surface-50 text-surface-400 border border-surface-100',
         ]"
-        :disabled="!selectedService"
+        :disabled="!selectedTimeRange"
         @click="showOrderPopup = true"
       >
         {{
-          selectedService ? `￥${selectedService.price} 立即下单` : "请选择服务"
+          selectedTimeRange
+            ? `￥${selectedTimeRange.price} 立即下单`
+            : "请选择服务"
         }}
       </van-button>
     </div>
@@ -255,17 +266,20 @@
         <div class="mb-4 p-3 bg-surface-50 rounded-lg">
           <div class="flex justify-between items-center">
             <span class="text-surface-500">服务类型</span>
-            <span>{{ selectedType?.name }}</span>
+            <span>{{ selectedService?.name }}</span>
           </div>
           <div class="flex justify-between items-center mt-2">
             <span class="text-surface-500">服务时长</span>
-            <span>{{ selectedService?.time }}</span>
+            <span>{{ selectedTimeRange?.name }}</span>
           </div>
           <div class="flex justify-between items-center mt-2">
             <span class="text-surface-500">服务费用</span>
             <span class="text-brand-500 font-medium"
-              >￥{{ selectedService?.price }}</span
+              >￥{{ selectedTimeRange?.price }}</span
             >
+          </div>
+          <div class="mt-2 text-xs text-surface-500">
+            {{ selectedService?.description }}
           </div>
         </div>
 
@@ -386,69 +400,190 @@ const fetchSellerDetail = async () => {
 };
 
 // 服务价格配置
-const textServices = [
-  { name: "体验咨询", time: "30分钟", price: 29.9 },
-  { name: "标准咨询", time: "1小时", price: 49.9 },
-  { name: "日常咨询", time: "1天", price: 99.9 },
-  { name: "连续咨询", time: "1周", price: 299.9 },
-  { name: "深度咨询", time: "1个月", price: 899.9 },
+const services = [
+  {
+    id: 1,
+    name: "文字语音条",
+    icon: "chat-o",
+    enabled: true,
+    description: "温暖文字/语音陪伴，随时倾诉烦恼",
+    timeRanges: [
+      {
+        type: "halfHour",
+        name: "半小时",
+        price: 29.9,
+        enabled: true,
+      },
+      {
+        type: "hour",
+        name: "一小时",
+        price: 49.9,
+        enabled: true,
+      },
+      {
+        type: "day",
+        name: "一天",
+        price: 199.9,
+        enabled: true,
+      },
+      {
+        type: "week",
+        name: "一周",
+        price: 999.9,
+        enabled: true,
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "语音聊天",
+    icon: "phone-o",
+    enabled: true,
+    description: "实时语音交流，温暖治愈陪伴",
+    timeRanges: [
+      {
+        type: "day",
+        name: "一天",
+        price: 299.9,
+        enabled: true,
+      },
+      {
+        type: "week",
+        name: "一周",
+        price: 1499.9,
+        enabled: true,
+      },
+      {
+        type: "month",
+        name: "一个月",
+        price: 3999.9,
+        enabled: true,
+      },
+    ],
+  },
+  {
+    id: 3,
+    name: "情绪咨询",
+    icon: "smile-o",
+    enabled: true,
+    description: "专业情绪疏导，解决心理困扰",
+    timeRanges: [
+      {
+        type: "hour",
+        name: "一小时",
+        price: 99.9,
+        enabled: true,
+      },
+      {
+        type: "day",
+        name: "一天",
+        price: 499.9,
+        enabled: true,
+      },
+    ],
+  },
+  {
+    id: 4,
+    name: "虚拟恋爱",
+    icon: "like-o",
+    enabled: true,
+    description: "温暖恋爱体验，感受甜蜜时光",
+    timeRanges: [
+      {
+        type: "hour",
+        name: "一小时",
+        price: 69.9,
+        enabled: true,
+      },
+      {
+        type: "day",
+        name: "一天",
+        price: 299.9,
+        enabled: true,
+      },
+      {
+        type: "week",
+        name: "一周",
+        price: 1599.9,
+        enabled: true,
+      },
+    ],
+  },
+  {
+    id: 5,
+    name: "视频聊天",
+    icon: "video-o",
+    enabled: true,
+    description: "面对面视频交流，更真实的陪伴",
+    timeRanges: [
+      {
+        type: "halfHour",
+        name: "半小时",
+        price: 99.9,
+        enabled: true,
+      },
+      {
+        type: "hour",
+        name: "一小时",
+        price: 179.9,
+        enabled: true,
+      },
+    ],
+  },
+  {
+    id: 6,
+    name: "叫醒服务",
+    icon: "clock-o",
+    enabled: true,
+    description: "温暖的早安问候，开启美好一天",
+    timeRanges: [
+      {
+        type: "once",
+        name: "单次",
+        price: 9.9,
+        enabled: true,
+      },
+      {
+        type: "day",
+        name: "包天",
+        price: 29.9,
+        enabled: true,
+      },
+    ],
+  },
 ];
 
-const voiceServices = [
-  { name: "体验咨询", time: "30分钟", price: 39.9 },
-  { name: "标准咨询", time: "1小时", price: 69.9 },
-  { name: "日常咨询", time: "1天", price: 149.9 },
-  { name: "连续咨询", time: "1周", price: 399.9 },
-  { name: "深度咨询", time: "1个月", price: 1199.9 },
-];
-
-const videoServices = [
-  { name: "体验咨询", time: "30分钟", price: 49.9 },
-  { name: "标准咨询", time: "1小时", price: 89.9 },
-  { name: "日常咨询", time: "1天", price: 199.9 },
-  { name: "连续咨询", time: "1周", price: 499.9 },
-  { name: "深度咨询", time: "1个月", price: 1499.9 },
-];
+// 过滤启用的服务
+const enabledServices = computed(() => {
+  return services
+    .filter((service) => service.enabled)
+    .map((service) => ({
+      ...service,
+      timeRanges: service.timeRanges.filter((timeRange) => timeRange.enabled),
+    }))
+    .filter((service) => service.timeRanges.length > 0); // 只显示至少有一个启用时长的服务
+});
 
 // 服务选择相关
-const selectedType = ref(null);
 const selectedService = ref(null);
+const selectedTimeRange = ref(null);
 const showOrderPopup = ref(false);
 const wechatId = ref("");
 const paymentMethod = ref("balance");
 const userBalance = ref(1000); // 模拟用户余额
 
-// 服务类型配置
-const serviceTypes = {
-  text: {
-    name: "文字/语音条",
-    icon: "chat-o",
-    items: textServices,
-  },
-  voice: {
-    name: "语音连麦",
-    icon: "phone-o",
-    items: voiceServices,
-  },
-  video: {
-    name: "视频通话",
-    icon: "video-o",
-    items: videoServices,
-  },
-};
-
-// 判断服务是否被选中
-const isSelected = (type, service) => {
+// 判断服务时长是否被选中
+const isSelected = (service, timeRange) => {
   return (
-    selectedType.value?.name === serviceTypes[type].name &&
-    selectedService.value?.time === service.time
+    selectedService.value?.id === service.id &&
+    selectedTimeRange.value?.type === timeRange.type
   );
 };
 
 // 选择服务
-const selectService = (type, service) => {
-  selectedType.value = serviceTypes[type];
+const selectService = (service, timeRange) => {
   selectedService.value = service;
+  selectedTimeRange.value = timeRange;
 };
 
 // 创建订单
@@ -457,9 +592,9 @@ const handleCreateOrder = async () => {
     // TODO: 调用创建订单接口
     const orderData = {
       sellerId: sellerId,
-      serviceType: selectedType.value.name,
-      serviceDuration: selectedService.value.time,
-      price: selectedService.value.price,
+      serviceType: selectedService.value.name,
+      serviceDuration: selectedTimeRange.value.name,
+      price: selectedTimeRange.value.price,
       wechatId: wechatId.value,
       paymentMethod: paymentMethod.value,
     };

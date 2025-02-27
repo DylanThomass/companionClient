@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 
-export const getDefaultTags = (data) => {
+export const getUserTagInfo = (data) => {
   return request({
     url: "/selectUserTagInfo",
     method: "post",

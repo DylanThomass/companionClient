@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { wxLogin } from "@/api/wx";
 import { getUserInfo } from "@/api/user";
-import { getDefaultTags } from "@/api/system";
+import { getUserTagInfo } from "@/api/system";
 import { MOCK_SELLER_USER, MOCK_NORMAL_USER } from "@/mock";
 import { IMAGE_BASE_URL } from "@/utils/request";
 
@@ -75,8 +75,8 @@ export const useUserStore = defineStore("user", {
     // 获取系统标签
     async fetchSystemTags() {
       try {
-        const res = await getDefaultTags({ userId: "" });
-        console.log("获取系统标签:", res);
+        const res = await getUserTagInfo({ userId: "" });
+        console.log("getUserTagInfo:", res);
         if (res) {
           console.log("res", res);
           const { sysTagInfo = [] } = res;
@@ -98,7 +98,7 @@ export const useUserStore = defineStore("user", {
           return null;
         }
 
-        const res = await getUserTags({ userId: this.userId });
+        const res = await getUserTagInfo({ userId: this.userId });
         const { userTagInfo = [] } = res;
         console.log("获取用户标签:", res);
 

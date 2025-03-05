@@ -92,6 +92,13 @@
               </div>
             </div>
           </div>
+          <!-- 个性签名 -->
+          <div class="mt-3">
+            <div class="flex items-center gap-2 text-sm text-surface-500">
+              <van-icon name="quote" class="text-brand-300" />
+              <span class="flex-1 italic">{{ sellerInfo.introduction }}</span>
+            </div>
+          </div>
           <!-- 标签列表 -->
           <div class="flex flex-wrap gap-2 mt-4">
             <span
@@ -111,42 +118,105 @@
 
     <!-- 数据统计 -->
     <div class="px-4 mb-4">
-      <div class="bg-white rounded-xl p-4 flex justify-between">
-        <div class="flex-1 flex flex-col items-center">
-          <span class="text-lg font-medium text-surface-800">{{
-            sellerInfo.favoriteCount
-          }}</span>
-          <span class="text-xs text-surface-500 mt-1">收藏</span>
+      <div class="bg-white rounded-xl p-4">
+        <div class="flex justify-between">
+          <div
+            class="flex-1 flex flex-col items-center cursor-pointer"
+            @click="handleFavoriteClick"
+          >
+            <span class="text-lg font-medium text-surface-800">{{
+              sellerInfo.favoriteCount
+            }}</span>
+            <span class="text-xs text-surface-500 mt-1">收藏</span>
+          </div>
+          <div
+            class="flex-1 flex flex-col items-center border-x border-surface-100 cursor-pointer"
+            @click="handleOrderClick"
+          >
+            <span class="text-lg font-medium text-surface-800">{{
+              sellerInfo.orderCount
+            }}</span>
+            <span class="text-xs text-surface-500 mt-1">接单</span>
+          </div>
+          <div
+            class="flex-1 flex flex-col items-center cursor-pointer"
+            @click="showReviews = !showReviews"
+          >
+            <span class="text-lg font-medium text-surface-800">{{
+              sellerInfo.reviewCount
+            }}</span>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="text-xs text-surface-500">评价</span>
+              <van-icon
+                :name="showReviews ? 'arrow-up' : 'arrow-down'"
+                class="text-xs text-surface-400"
+              />
+            </div>
+          </div>
         </div>
-        <div
-          class="flex-1 flex flex-col items-center border-x border-surface-100"
-        >
-          <span class="text-lg font-medium text-surface-800">{{
-            sellerInfo.orderCount
-          }}</span>
-          <span class="text-xs text-surface-500 mt-1">接单</span>
-        </div>
-        <div class="flex-1 flex flex-col items-center">
-          <span class="text-lg font-medium text-surface-800">{{
-            sellerInfo.reviewCount
-          }}</span>
-          <span class="text-xs text-surface-500 mt-1">评价</span>
-        </div>
-      </div>
-    </div>
 
-    <!-- 自我介绍 -->
-    <div class="px-4 py-6">
-      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4">
-        <div class="flex items-center gap-2 mb-3">
-          <div class="w-1 h-5 bg-brand-500 rounded-full"></div>
-          <span class="text-lg font-medium text-surface-800">一封来信</span>
-        </div>
-        <div
-          class="text-sm text-surface-600 leading-relaxed whitespace-pre-wrap italic text-center"
-        >
-          {{ sellerInfo.introduction }}
-        </div>
+        <!-- 评价列表 -->
+        <Transition name="collapse">
+          <div
+            v-show="showReviews"
+            class="mt-4 pt-4 border-t border-surface-100"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-sm text-surface-600">最新评价</span>
+              <van-rate
+                v-model="sellerInfo.rating"
+                :size="12"
+                color="#f59e0b"
+                void-icon="star"
+                void-color="#e5e7eb"
+                readonly
+              />
+            </div>
+            <div
+              class="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar"
+            >
+              <div
+                v-for="review in reviews"
+                :key="review.id"
+                class="flex gap-3"
+              >
+                <van-image
+                  round
+                  width="32"
+                  height="32"
+                  :src="review.userAvatar"
+                  class="flex-shrink-0"
+                />
+                <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-surface-800">{{
+                      review.userName
+                    }}</span>
+                    <span class="text-xs text-surface-400">{{
+                      review.time
+                    }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-1">
+                    <van-rate
+                      v-model="review.rating"
+                      :size="10"
+                      color="#f59e0b"
+                      void-icon="star"
+                      void-color="#e5e7eb"
+                      readonly
+                    />
+                    <span class="text-xs text-surface-400">{{
+                      review.serviceType
+                    }}</span>
+                  </div>
+                  <p class="mt-1 text-sm text-surface-600 leading-relaxed">
+                    {{ review.content }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Transition>
       </div>
     </div>
 
@@ -293,17 +363,43 @@
           />
         </div>
 
+        <!-- 备注信息 -->
+        <div class="mb-6">
+          <van-field
+            v-model="orderRemark"
+            label="备注"
+            type="textarea"
+            rows="2"
+            placeholder="请输入备注（选填）"
+            maxlength="200"
+            show-word-limit
+            autosize
+          />
+        </div>
+
         <!-- 支付方式 -->
         <div class="mb-6">
           <div class="text-sm text-surface-600 mb-2">支付方式</div>
           <van-radio-group v-model="paymentMethod" direction="horizontal">
             <van-radio name="balance" icon-size="18px">
-              余额支付
-              <template #extra>
-                <span class="text-xs text-surface-400 ml-1"
-                  >剩余: ￥{{ userBalance }}</span
-                >
-              </template>
+              <div class="flex items-center gap-2">
+                <span>余额支付</span>
+                <template v-if="accountStore.loading">
+                  <span class="text-xs text-surface-400">加载中...</span>
+                </template>
+                <template v-else>
+                  <span class="text-xs text-surface-400">
+                    (剩余: ￥{{ userBalance.toFixed(2) }})
+                  </span>
+                  <span
+                    v-if="
+                      selectedTimeRange && userBalance < selectedTimeRange.price
+                    "
+                    class="text-xs text-red-500"
+                    >余额不足</span
+                  >
+                </template>
+              </div>
             </van-radio>
             <van-radio name="wechat" icon-size="18px">微信支付</van-radio>
           </van-radio-group>
@@ -314,11 +410,11 @@
           block
           :class="[
             'h-11 rounded-design text-base font-medium transition-colors duration-300',
-            wechatId
+            canSubmit
               ? 'bg-brand-50 text-brand-500 border border-brand-100 hover:bg-brand-100'
               : 'bg-surface-50 text-surface-400 border border-surface-100',
           ]"
-          :disabled="!wechatId"
+          :disabled="!canSubmit"
           @click="handleCreateOrder"
         >
           确认下单
@@ -342,12 +438,14 @@
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { showToast, ImagePreview } from "vant";
+import { useAccountStore } from "@/store/modules/account";
 import HeadImg1 from "@/assets/test/HeadImg-1.jpg";
 import HeadImg2 from "@/assets/test/HeadImg-2.jpg";
 import HeadImg3 from "@/assets/test/HeadImg-3.jpg";
 import HeadImg4 from "@/assets/test/HeadImg-4.jpg";
 
 const route = useRoute();
+const accountStore = useAccountStore();
 const sellerId = route.params.id;
 const showPreview = ref(false);
 const currentPhotoIndex = ref(0);
@@ -368,9 +466,7 @@ const sellerInfo = ref({
   level: 8,
   location: "广东·深圳",
   constellation: "双子座",
-  introduction: `"愿以温暖之心，助你渡过难关。"
-
-                                    ——浅夏微凉`,
+  introduction: "愿以温暖之心，助你渡过难关",
 });
 
 // 预览照片
@@ -570,7 +666,13 @@ const selectedTimeRange = ref(null);
 const showOrderPopup = ref(false);
 const wechatId = ref("");
 const paymentMethod = ref("balance");
-const userBalance = ref(1000); // 模拟用户余额
+const orderRemark = ref("");
+
+// 获取用户余额
+const userBalance = computed(() => {
+  const balance = accountStore.userBalance;
+  return typeof balance === "number" ? balance : 0;
+});
 
 // 判断服务时长是否被选中
 const isSelected = (service, timeRange) => {
@@ -586,7 +688,16 @@ const selectService = (service, timeRange) => {
   selectedTimeRange.value = timeRange;
 };
 
-// 创建订单
+// 添加计算属性判断是否可以提交订单
+const canSubmit = computed(() => {
+  if (!wechatId.value) return false;
+  if (paymentMethod.value === "balance" && selectedTimeRange.value) {
+    return userBalance.value >= selectedTimeRange.value.price;
+  }
+  return true;
+});
+
+// 修改创建订单的处理函数
 const handleCreateOrder = async () => {
   try {
     // TODO: 调用创建订单接口
@@ -597,9 +708,16 @@ const handleCreateOrder = async () => {
       price: selectedTimeRange.value.price,
       wechatId: wechatId.value,
       paymentMethod: paymentMethod.value,
+      remark: orderRemark.value,
     };
 
     // const { data } = await createOrder(orderData);
+
+    // 如果是余额支付，更新用户余额
+    if (paymentMethod.value === "balance" && selectedTimeRange.value) {
+      await accountStore.updateBalance(-selectedTimeRange.value.price);
+    }
+
     showToast({ message: "下单成功", type: "success" });
     showOrderPopup.value = false;
   } catch (error) {
@@ -608,8 +726,61 @@ const handleCreateOrder = async () => {
   }
 };
 
-onMounted(() => {
-  fetchSellerDetail();
+// 评价展示控制
+const showReviews = ref(false);
+
+// 修改评价数据
+const reviews = ref([
+  {
+    id: 1,
+    userName: "暖阳",
+    userAvatar: HeadImg2,
+    rating: 5,
+    serviceType: "文字语音条",
+    content:
+      "店员很耐心，一直在认真倾听我的烦恼，给出的建议也很中肯，感觉整个人都被治愈了~",
+    time: "2024-03-01",
+  },
+  {
+    id: 2,
+    userName: "星辰",
+    userAvatar: HeadImg3,
+    rating: 5,
+    serviceType: "情绪咨询",
+    content: "专业又温柔，能感受到店员是真心想帮助我。",
+    time: "2024-02-28",
+  },
+  {
+    id: 3,
+    userName: "微光",
+    userAvatar: HeadImg4,
+    rating: 5,
+    serviceType: "语音聊天",
+    content: "声音很温柔，聊天很舒服，时间过得特别快。",
+    time: "2024-02-27",
+  },
+]);
+
+// 处理收藏点击
+const handleFavoriteClick = () => {
+  showToast("收藏功能开发中...");
+};
+
+// 处理接单点击
+const handleOrderClick = () => {
+  showToast("订单记录功能开发中...");
+};
+
+onMounted(async () => {
+  try {
+    await Promise.all([fetchSellerDetail(), accountStore.fetchBalance()]);
+  } catch (error) {
+    console.error("初始化数据失败:", error);
+    showToast({
+      message: "加载数据失败",
+      type: "error",
+    });
+  }
 });
 </script>
 
@@ -646,5 +817,30 @@ onMounted(() => {
 
 .order-popup {
   max-height: 80vh;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225 / 0.5);
+  border-radius: 2px;
+}
+
+.collapse-enter-active,
+.collapse-leave-active {
+  transition: all 0.3s ease-out;
+  overflow: hidden;
+}
+
+.collapse-enter-from,
+.collapse-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

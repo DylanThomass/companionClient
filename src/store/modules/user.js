@@ -4,6 +4,7 @@ import { getUserInfo } from "@/api/user";
 import { getUserTagInfo } from "@/api/system";
 import { MOCK_SELLER_USER, MOCK_NORMAL_USER } from "@/mock";
 import { IMAGE_BASE_URL } from "@/utils/request";
+import { useAccountStore } from "./account";
 
 /**
  * 用户状态管理
@@ -79,6 +80,11 @@ export const useUserStore = defineStore("user", {
         this.token = data.token;
         this.openid = data.accessToken;
         this.userId = data.userId;
+
+        // 登录成功后初始化账户余额
+        const accountStore = useAccountStore();
+        await accountStore.fetchBalance();
+
         return data;
       } catch (error) {
         console.error("登录失败:", error);
@@ -97,6 +103,11 @@ export const useUserStore = defineStore("user", {
       this.role = 1;
       this.systemTags = [];
       this.userTags = [];
+
+      // 重置账户状态
+      const accountStore = useAccountStore();
+      accountStore.reset();
+
       localStorage.clear();
     },
 

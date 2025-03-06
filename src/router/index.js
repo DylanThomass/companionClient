@@ -32,6 +32,15 @@ const routes = [
           requiresAuth: false,
         },
       },
+      {
+        path: "blind-box",
+        name: "BlindBox",
+        component: () => import("@/views/BlindBox.vue"),
+        meta: {
+          title: "心动匹配",
+          requiresAuth: true,
+        },
+      },
     ],
   },
   {

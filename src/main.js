@@ -3,9 +3,11 @@ import "vant/lib/index.css";
 import "vant/es/toast/style";
 import App from "./App.vue";
 import router from "./router";
-import pinia from "./store";
+import { createPinia } from "pinia";
 import VConsole from "vconsole";
 import { Toast, Dialog } from "vant";
+// 引入 Font Awesome
+import "@fortawesome/fontawesome-free/css/all.css";
 
 // 在开发环境和测试环境中启用 VConsole
 if (["development", "test"].includes(process.env.VUE_APP_ENV)) {
@@ -49,7 +51,7 @@ Object.values(vantComponents).forEach((component) => {
 });
 
 // 使用 Pinia 和路由
-app.use(pinia);
+app.use(createPinia());
 app.use(router);
 
 // 挂载应用

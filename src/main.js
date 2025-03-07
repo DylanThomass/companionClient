@@ -1,11 +1,17 @@
 import { createApp } from "vue";
-import "vant/lib/index.css";
-import "vant/es/toast/style";
 import App from "./App.vue";
 import router from "./router";
 import { createPinia } from "pinia";
 import VConsole from "vconsole";
 import { Toast, Dialog } from "vant";
+
+// 样式导入顺序很重要
+import "vant/lib/index.css"; // 1. Vant 基础样式
+import "./styles/design-tokens.css"; // 2. 设计令牌
+import "./styles/base.css"; // 3. 基础样式
+import "./styles/vant-reset.css"; // 4. Vant 样式重置
+import "./styles/tailwind.css"; // 5. Tailwind 和自定义样式
+
 // 引入 Font Awesome
 import "@fortawesome/fontawesome-free/css/all.css";
 
@@ -16,13 +22,9 @@ if (["development", "test"].includes(process.env.VUE_APP_ENV)) {
 
 // Vant 组件
 const vantComponents = {
-  Toast: Toast,
-  Dialog: Dialog,
+  Toast,
+  Dialog,
 };
-
-// 引入 Vant 样式
-import "./styles/base.css";
-import "./styles/tailwind.css";
 
 // 创建应用实例
 const app = createApp(App);

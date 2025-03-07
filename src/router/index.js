@@ -124,6 +124,15 @@ const routes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "/design-system",
+    name: "DesignSystem",
+    component: () => import("@/views/DesignSystem.vue"),
+    meta: {
+      title: "设计系统",
+      requiresAuth: true,
+    },
+  },
 ];
 
 const router = createRouter({

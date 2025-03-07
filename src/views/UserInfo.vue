@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-surface-50 to-surface-100">
+  <div class="ds-page">
     <!-- 开发环境测试按钮 -->
     <div v-if="isDev && !isWx" class="fixed bottom-20 right-4 z-50">
       <van-button
@@ -13,14 +13,12 @@
     </div>
 
     <!-- 用户信息卡片 -->
-    <div class="relative px-6">
+    <div class="relative px-md">
       <!-- 头像和昵称区域 -->
-      <div class="relative z-10 pt-12">
+      <div class="relative z-10 pt-xl">
         <!-- 装饰背景 -->
-        <div class="absolute top-0 -left-6 -right-6 h-48">
-          <div
-            class="absolute inset-0 bg-gradient-to-br from-teal-400 via-cyan-500 to-brand-500 h-56"
-          >
+        <div class="absolute top-0 -left-md -right-md h-48">
+          <div class="absolute inset-0 gradient-primary h-56">
             <!-- 添加一个柔和的渐变遮罩 -->
             <div
               class="absolute inset-0 bg-gradient-to-t from-white/20 via-white/5 to-transparent"
@@ -33,16 +31,14 @@
         </div>
 
         <!-- 用户信息内容 -->
-        <div
-          class="relative bg-white rounded-2xl p-4 shadow-lg overflow-hidden"
-        >
+        <div class="ds-card relative overflow-hidden">
           <!-- 性别标识 -->
           <div
             class="absolute top-5 -right-8 w-28 text-center py-1 text-xs font-medium transform rotate-45 shadow-sm"
             :class="[
               userStore.userInfo?.sex === 0
-                ? 'bg-blue-500 text-white'
-                : 'bg-pink-500 text-white',
+                ? 'bg-info-500 text-white'
+                : 'bg-danger-500 text-white',
             ]"
           ></div>
 
@@ -55,17 +51,17 @@
                 height="96"
                 :src="avatarUrl"
                 :alt="userStore.userInfo?.nickname"
-                class="border-4 border-white shadow-lg"
+                class="border-4 border-white shadow-md"
                 @error="onImageError"
               >
                 <template #error>
                   <div
-                    class="w-[96px] h-[96px] rounded-full bg-surface-100 flex items-center justify-center"
+                    class="w-[96px] h-[96px] rounded-full bg-background-light flex items-center justify-center"
                   >
                     <van-icon
                       name="user-circle-o"
                       size="48"
-                      class="text-surface-400"
+                      class="text-text-secondary"
                     />
                   </div>
                 </template>
@@ -74,23 +70,23 @@
               <div
                 v-if="userStore.userTags && userStore.userTags.length > 0"
                 style="transform: rotate(-12deg)"
-                class="absolute -bottom-2 right-0 px-2 py-1 bg-white rounded-full shadow-lg"
+                class="absolute -bottom-2 right-0 px-2 py-1 bg-white rounded-full shadow-sm"
               >
-                <span class="text-xs text-brand-500">
+                <span class="text-xs text-primary">
                   #{{ userStore.userTags[0]?.tag || "" }}
                 </span>
               </div>
             </div>
 
             <!-- 用户信息 -->
-            <div class="flex-1 px-4 flex flex-col justify-between h-[96px]">
+            <div class="flex-1 px-md flex flex-col justify-between h-[96px]">
               <!-- 昵称区域 -->
-              <div class="text-2xl font-semibold text-surface-800 mt-4">
+              <div class="text-2xl font-semibold text-text-primary mt-md">
                 {{ userStore.userInfo?.nickname || "亲爱的用户" }}
               </div>
               <!-- 地域信息 -->
-              <div class="flex items-center text-surface-500 text-sm mb-4">
-                <van-icon name="location-o" class="mr-1" />
+              <div class="flex items-center text-text-secondary text-sm mb-md">
+                <van-icon name="location-o" class="mr-xs" />
                 <span
                   >{{ userStore.userInfo?.province }}
                   {{ userStore.userInfo?.city }}</span
@@ -101,7 +97,7 @@
             <!-- 编辑按钮 -->
             <div class="flex-shrink-0 self-center">
               <van-button
-                class="edit-btn"
+                class="button-secondary"
                 round
                 size="small"
                 @click="handleEdit"
@@ -115,20 +111,20 @@
           </div>
 
           <!-- 经验值进度条 -->
-          <div class="mt-6 space-y-2">
+          <div class="mt-md space-y-xs">
             <div class="flex items-center justify-between">
               <span
-                class="px-2 py-0.5 bg-brand-100 text-brand-500 rounded-full text-xs font-medium"
+                class="px-xs py-0.5 bg-primary-light/20 text-primary rounded-full text-xs font-medium"
               >
                 {{ userLevel.title }}
               </span>
-              <span class="text-brand-500 font-medium">
+              <span class="text-primary font-medium">
                 {{ userLevel.currentExp }}/{{ userLevel.nextLevelExp }}
               </span>
             </div>
-            <div class="h-2 bg-surface-100 rounded-full overflow-hidden">
+            <div class="h-2 bg-background-light rounded-full overflow-hidden">
               <div
-                class="h-full bg-gradient-to-r from-brand-400 to-brand-500 rounded-full transition-all duration-300"
+                class="h-full gradient-primary rounded-full transition-all duration-base"
                 :style="{ width: `${userLevel.progress}%` }"
               ></div>
             </div>
@@ -136,50 +132,50 @@
 
           <!-- 用户数据统计 -->
           <div
-            class="mt-4 flex items-center justify-between border-t border-b border-surface-100 py-4"
+            class="mt-md flex items-center justify-between border-t border-b border-border py-md"
           >
             <div
-              class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
+              class="flex-1 text-center border-r border-border group cursor-pointer"
             >
-              <div class="text-lg font-semibold text-brand-500">
+              <div class="text-lg font-semibold text-primary">
                 ¥ {{ userStats.balance }}
               </div>
               <div
-                class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
+                class="text-xs text-text-secondary group-hover:text-primary transition-colors"
               >
                 余额
               </div>
             </div>
             <div
-              class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
+              class="flex-1 text-center border-r border-border group cursor-pointer"
             >
-              <div class="text-lg font-semibold text-brand-500">
+              <div class="text-lg font-semibold text-primary">
                 {{ userStats.coupons }}
               </div>
               <div
-                class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
+                class="text-xs text-text-secondary group-hover:text-primary transition-colors"
               >
                 卡券
               </div>
             </div>
             <div
-              class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
+              class="flex-1 text-center border-r border-border group cursor-pointer"
             >
-              <div class="text-lg font-semibold text-brand-500">
+              <div class="text-lg font-semibold text-primary">
                 {{ userStore.userInfo?.consecutiveSignInDays }}
               </div>
               <div
-                class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
+                class="text-xs text-text-secondary group-hover:text-primary transition-colors"
               >
                 签到
               </div>
             </div>
             <div class="flex-1 text-center group cursor-pointer">
-              <div class="text-lg font-semibold text-brand-500">
+              <div class="text-lg font-semibold text-primary">
                 {{ userStats.inviteCount }}
               </div>
               <div
-                class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
+                class="text-xs text-text-secondary group-hover:text-primary transition-colors"
               >
                 邀请
               </div>
@@ -187,14 +183,16 @@
           </div>
         </div>
         <!-- 在线状态卡片 -->
-        <div v-if="userStore.isSeller" class="mt-6">
-          <div class="bg-white/95 backdrop-blur rounded-xl p-3 shadow-lg">
+        <div v-if="userStore.isSeller" class="mt-md">
+          <div class="ds-card">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
                 <span
-                  class="w-2 h-2 rounded-full mr-2"
+                  class="w-2 h-2 rounded-full mr-xs"
                   :class="[
-                    online ? 'bg-success-500 animate-pulse' : 'bg-surface-300',
+                    online
+                      ? 'bg-success-500 animate-pulse'
+                      : 'bg-text-secondary',
                   ]"
                 />
                 <span class="text-base font-medium">{{
@@ -204,11 +202,11 @@
               <van-switch
                 v-model="online"
                 size="20px"
-                active-color="#10b981"
+                active-color="var(--c-success)"
                 @change="handleOnlineChange"
               />
             </div>
-            <div class="mt-1 text-xs text-surface-500">
+            <div class="mt-xs text-xs text-text-secondary">
               {{
                 online ? "当前状态：可以接受新的订单" : "当前状态：暂时无法接单"
               }}
@@ -218,161 +216,158 @@
       </div>
 
       <!-- 功能按钮组 -->
-      <div class="mt-6 grid grid-cols-3 gap-3">
+      <div class="mt-md grid grid-cols-3 gap-sm">
         <!-- 签到按钮 -->
         <div
-          class="bg-white rounded-xl p-4 shadow-lg text-center cursor-pointer hover:shadow-xl transition-shadow duration-300"
+          class="ds-card p-md text-center cursor-pointer hover:shadow-md transition-all duration-fast"
           @click="handleSignIn"
         >
-          <van-icon name="sign" class="text-2xl text-brand-500" />
-          <div class="mt-2 text-sm text-surface-600 whitespace-nowrap">
+          <van-icon name="sign" class="text-2xl text-primary" />
+          <div class="mt-xs text-sm text-text-secondary whitespace-nowrap">
             {{ userStats.todaySignIn ? "已签到" : "每日签到" }}
           </div>
         </div>
 
         <!-- 标签管理 -->
         <div
-          class="bg-white rounded-xl p-4 shadow-lg text-center cursor-pointer hover:shadow-xl transition-shadow duration-300"
+          class="ds-card p-md text-center cursor-pointer hover:shadow-md transition-all duration-fast"
           @click="handleManageTags"
         >
-          <van-icon name="label-o" class="text-2xl text-brand-500" />
-          <div class="mt-2 text-sm text-surface-600 whitespace-nowrap">
+          <van-icon name="label-o" class="text-2xl text-primary" />
+          <div class="mt-xs text-sm text-text-secondary whitespace-nowrap">
             标签管理
           </div>
         </div>
         <!-- 根据角色显示不同按钮 -->
         <div
-          class="bg-white rounded-xl p-4 shadow-lg text-center cursor-pointer hover:shadow-xl transition-shadow duration-300"
+          class="ds-card p-md text-center cursor-pointer hover:shadow-md transition-all duration-fast"
           @click="handleUserAction"
         >
           <van-icon
             :name="userStore.isSeller ? 'setting-o' : 'shop-collect-o'"
-            class="text-2xl text-brand-500"
+            class="text-2xl text-primary"
           />
-          <div class="mt-2 text-sm text-surface-600 whitespace-nowrap">
+          <div class="mt-xs text-sm text-text-secondary whitespace-nowrap">
             {{ userStore.isSeller ? "装修主页" : "成为店员" }}
           </div>
         </div>
       </div>
 
       <!-- 功能模块 -->
-      <div class="mt-6 grid grid-cols-2 gap-4">
+      <div class="mt-md grid grid-cols-2 gap-sm">
         <!-- 订单与收藏 -->
-        <div class="bg-white rounded-2xl p-4 shadow-lg">
-          <div class="text-sm text-surface-500 mb-3">
+        <div class="ds-card">
+          <div class="text-sm text-text-secondary mb-sm">
             {{ userStore.isSeller ? "店员中心" : "订单与收藏" }}
           </div>
-          <div class="space-y-2">
+          <div class="space-y-xs">
             <!-- 店员专属功能 -->
             <template v-if="userStore.isSeller">
               <div
-                class="flex items-center p-3 bg-feature-income-light/20 rounded-xl cursor-pointer hover:bg-feature-income-light/30 transition-colors duration-300"
+                class="flex items-center p-sm bg-info-500/10 rounded-lg cursor-pointer hover:bg-info-500/20 transition-colors duration-fast"
                 @click="handleIncome"
               >
-                <van-icon
-                  name="balance-o"
-                  class="text-xl text-feature-income"
-                />
-                <span class="ml-2 text-surface-600 text-sm">收入统计</span>
-                <van-icon name="arrow" class="ml-auto text-surface-400" />
+                <van-icon name="balance-o" class="text-xl text-info-500" />
+                <span class="ml-xs text-text-regular text-sm">收入统计</span>
+                <van-icon name="arrow" class="ml-auto text-text-secondary" />
               </div>
             </template>
 
             <!-- 通用功能 -->
             <div
-              class="flex items-center p-3 bg-feature-order-light/20 rounded-xl cursor-pointer hover:bg-feature-order-light/30 transition-colors duration-300"
+              class="flex items-center p-sm bg-danger-500/10 rounded-lg cursor-pointer hover:bg-danger-500/20 transition-colors duration-fast"
               @click="handleOrders"
             >
-              <van-icon name="orders-o" class="text-xl text-feature-order" />
-              <span class="ml-2 text-surface-600 text-sm">我的订单</span>
-              <van-icon name="arrow" class="ml-auto text-surface-400" />
+              <van-icon name="orders-o" class="text-xl text-danger-500" />
+              <span class="ml-xs text-text-regular text-sm">我的订单</span>
+              <van-icon name="arrow" class="ml-auto text-text-secondary" />
             </div>
             <div
-              class="flex items-center p-3 bg-feature-favorite-light/20 rounded-xl cursor-pointer hover:bg-feature-favorite-light/30 transition-colors duration-300"
+              class="flex items-center p-sm bg-warning-500/10 rounded-lg cursor-pointer hover:bg-warning-500/20 transition-colors duration-fast"
               @click="handleFavorites"
             >
-              <van-icon name="like-o" class="text-xl text-feature-favorite" />
-              <span class="ml-2 text-surface-600 text-sm">收藏店员</span>
-              <van-icon name="arrow" class="ml-auto text-surface-400" />
+              <van-icon name="like-o" class="text-xl text-warning-500" />
+              <span class="ml-xs text-text-regular text-sm">收藏店员</span>
+              <van-icon name="arrow" class="ml-auto text-text-secondary" />
             </div>
           </div>
         </div>
 
         <!-- 帮助与支持 -->
-        <div class="bg-white rounded-2xl p-4 shadow-lg">
-          <div class="text-sm text-surface-500 mb-3">帮助与支持</div>
-          <div class="space-y-2">
+        <div class="ds-card">
+          <div class="text-sm text-text-secondary mb-sm">帮助与支持</div>
+          <div class="space-y-xs">
             <div
-              class="flex items-center p-3 bg-feature-service-light/20 rounded-xl cursor-pointer hover:bg-feature-service-light/30 transition-colors duration-300"
+              class="flex items-center p-sm bg-info-500/10 rounded-lg cursor-pointer hover:bg-info-500/20 transition-colors duration-fast"
               @click="handleCustomerService"
             >
-              <van-icon name="service-o" class="text-xl text-feature-service" />
-              <span class="ml-2 text-surface-600 text-sm">咨询客服</span>
-              <van-icon name="arrow" class="ml-auto text-surface-400" />
+              <van-icon name="service-o" class="text-xl text-info-500" />
+              <span class="ml-xs text-text-regular text-sm">咨询客服</span>
+              <van-icon name="arrow" class="ml-auto text-text-secondary" />
             </div>
             <div
-              class="flex items-center p-3 bg-feature-system-light/20 rounded-xl cursor-pointer hover:bg-feature-system-light/30 transition-colors duration-300"
+              class="flex items-center p-sm bg-primary/10 rounded-lg cursor-pointer hover:bg-primary/20 transition-colors duration-fast"
               @click="handleClearCache"
             >
-              <van-icon name="delete-o" class="text-xl text-feature-system" />
-              <span class="ml-2 text-surface-600 text-sm">清理缓存</span>
-              <van-icon name="arrow" class="ml-auto text-surface-400" />
+              <van-icon name="delete-o" class="text-xl text-primary" />
+              <span class="ml-xs text-text-regular text-sm">清理缓存</span>
+              <van-icon name="arrow" class="ml-auto text-text-secondary" />
             </div>
           </div>
         </div>
       </div>
 
       <!-- 即将推出 -->
-      <div class="mt-6 bg-white/60 backdrop-blur rounded-2xl p-4 shadow-lg">
-        <div class="text-sm text-surface-500 mb-3 flex items-center">
-          <van-icon name="upgrade" class="mr-1 text-brand-400" />
+      <div class="mt-md ds-card bg-background/60 backdrop-blur">
+        <div class="text-sm text-text-secondary mb-sm flex items-center">
+          <van-icon name="upgrade" class="mr-xs text-primary" />
           即将推出
         </div>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 gap-sm">
           <!-- 邀请好友 -->
           <div
-            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+            class="flex items-center p-sm border border-dashed border-border rounded-lg cursor-not-allowed opacity-75"
           >
-            <van-icon name="friends-o" class="text-xl text-surface-400" />
-            <span class="ml-2 text-surface-500 text-sm">邀请好友</span>
+            <van-icon name="friends-o" class="text-xl text-text-secondary" />
+            <span class="ml-xs text-text-secondary text-sm">邀请好友</span>
             <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
           </div>
           <!-- AI角色管理 -->
           <div
-            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+            class="flex items-center p-sm border border-dashed border-border rounded-lg cursor-not-allowed opacity-75"
           >
-            <van-icon name="friends" class="text-xl text-surface-400" />
-            <span class="ml-2 text-surface-500 text-sm">AI角色管理</span>
+            <van-icon name="friends" class="text-xl text-text-secondary" />
+            <span class="ml-xs text-text-secondary text-sm">AI角色管理</span>
             <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
           </div>
           <!-- 创业加盟 -->
           <div
-            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+            class="flex items-center p-sm border border-dashed border-border rounded-lg cursor-not-allowed opacity-75"
           >
-            <van-icon name="shop" class="text-xl text-surface-400" />
-            <span class="ml-2 text-surface-500 text-sm">创业加盟</span>
+            <van-icon name="shop" class="text-xl text-text-secondary" />
+            <span class="ml-xs text-text-secondary text-sm">创业加盟</span>
             <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
           </div>
           <!-- 社区活动 -->
           <div
-            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+            class="flex items-center p-sm border border-dashed border-border rounded-lg cursor-not-allowed opacity-75"
           >
-            <van-icon name="cluster" class="text-xl text-surface-400" />
-            <span class="ml-2 text-surface-500 text-sm">社区活动</span>
+            <van-icon name="cluster" class="text-xl text-text-secondary" />
+            <span class="ml-xs text-text-secondary text-sm">社区活动</span>
             <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
           </div>
           <!-- 积分商城 -->
           <div
-            class="flex items-center p-3 border border-dashed border-surface-300 rounded-xl cursor-not-allowed opacity-75"
+            class="flex items-center p-sm border border-dashed border-border rounded-lg cursor-not-allowed opacity-75"
           >
-            <van-icon name="gift" class="text-xl text-surface-400" />
-            <span class="ml-2 text-surface-500 text-sm">积分商城</span>
+            <van-icon name="gift" class="text-xl text-text-secondary" />
+            <span class="ml-xs text-text-secondary text-sm">积分商城</span>
             <van-tag type="primary" size="mini" class="ml-auto">Coming</van-tag>
           </div>
         </div>
         <!-- 退出登录按钮 -->
-        <div class="mt-6">
-          <van-button block round class="btn-danger" @click="handleLogout">
+        <div class="mt-md">
+          <van-button block round class="button-danger" @click="handleLogout">
             退出登录
           </van-button>
         </div>
@@ -380,15 +375,15 @@
     </div>
 
     <!-- 调试信息 -->
-    <div v-if="isDev" class="mt-8">
+    <div v-if="isDev" class="mt-lg">
       <van-collapse
         v-model="activeNames"
-        class="rounded-design overflow-hidden bg-white"
+        class="rounded-lg overflow-hidden bg-background"
       >
         <van-collapse-item title="调试信息" name="1">
-          <div class="p-4 bg-surface-50 rounded-b-design">
+          <div class="p-md bg-background-light rounded-b-lg">
             <pre
-              class="text-sm font-mono text-surface-600 whitespace-pre-wrap break-all"
+              class="text-sm font-mono text-text-secondary whitespace-pre-wrap break-all"
             >
               {{ JSON.stringify(userStore.userInfo, null, 2) }}
             </pre>
@@ -530,7 +525,7 @@ const handleLogout = () => {
     title: "提示",
     message: "确定要退出登录吗？",
     confirmButtonText: "退出",
-    confirmButtonColor: "#ef4444",
+    confirmButtonColor: "var(--c-danger)",
   }).then(() => {
     userStore.logout();
     showToast("已退出登录");
@@ -559,7 +554,7 @@ const handleCustomerService = () => {
     title: "联系客服",
     message: "工作时间：周一至周日 9:00-21:00",
     confirmButtonText: "拨打电话",
-    confirmButtonColor: "#14b8a6",
+    confirmButtonColor: "var(--c-primary)",
     cancelButtonText: "取消",
   })
     .then(() => {
@@ -574,7 +569,7 @@ const handleClearCache = () => {
     title: "清理缓存",
     message: "确定要清理应用缓存吗？这可能需要重新加载一些数据。",
     confirmButtonText: "确定清理",
-    confirmButtonColor: "#f05252",
+    confirmButtonColor: "var(--c-danger)",
   })
     .then(() => {
       // TODO: 实现缓存清理功能
@@ -643,54 +638,16 @@ const updateOnlineStatus = async (status) => {
 </script>
 
 <style scoped>
-.btn-primary {
-  @apply bg-brand-500 border-brand-500;
+/* 使用新的设计系统组件类 */
+.gradient-primary {
+  background: linear-gradient(
+    to right,
+    var(--c-primary),
+    var(--c-primary-light)
+  );
 }
 
-.btn-primary:active {
-  @apply bg-brand-600 border-brand-600;
-}
-
-.btn-primary :deep(.van-button__text) {
-  @apply text-white font-medium text-lg;
-}
-
-.btn-secondary {
-  @apply bg-brand-200 border-brand-200;
-}
-
-.btn-secondary:active {
-  @apply bg-brand-300 border-brand-300;
-}
-
-.btn-secondary :deep(.van-button__text) {
-  @apply text-brand-500 font-medium text-lg;
-}
-
-.btn-danger {
-  @apply bg-danger-500 border-danger-500;
-}
-
-.btn-danger:active {
-  @apply bg-danger-600 border-danger-600;
-}
-
-.btn-danger :deep(.van-button__text) {
-  @apply text-white font-medium text-lg;
-}
-
-.edit-btn {
-  @apply bg-white/90 backdrop-blur text-surface-600 border-surface-200;
-}
-
-.edit-btn:active {
-  @apply bg-surface-50;
-}
-
-.edit-btn :deep(.van-button__text) {
-  @apply text-sm font-normal;
-}
-
+/* 自定义样式 */
 .tag-rotate {
   transform: rotate(-12deg);
 }

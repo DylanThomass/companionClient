@@ -1,0 +1,73 @@
+@import "./design-tokens.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 基础样式重置和默认样式 */
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply text-text-regular bg-background-light font-sans text-base antialiased;
+  }
+}
+
+/* 通用组件样式 */
+@layer components {
+  /* 页面容器 */
+  .page-container {
+    @apply min-h-screen bg-background-light;
+  }
+
+  /* 内容区域 */
+  .content-container {
+    @apply p-md;
+  }
+
+  /* 卡片容器 */
+  .card {
+    @apply bg-background rounded-lg shadow-sm p-md;
+  }
+
+  /* 标题样式 */
+  .section-title {
+    @apply text-lg font-medium text-text-primary mb-md;
+  }
+}
+
+/* Vant 组件样式优化 */
+.van-button {
+  &--primary {
+    background: var(--c-primary) !important;
+  }
+
+  &--plain {
+    @apply border-border text-text-regular;
+  }
+}
+
+.van-field {
+  &__label {
+    @apply text-text-regular;
+  }
+
+  &__control {
+    @apply text-text-primary;
+  }
+}
+
+.van-cell {
+  &__title {
+    @apply text-text-primary;
+  }
+
+  &__value {
+    @apply text-text-regular;
+  }
+
+  &__label {
+    @apply text-text-secondary;
+  }
+}

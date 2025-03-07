@@ -236,10 +236,10 @@ export async function initWxConfig(
 ) {
   try {
     // 非微信环境不初始化
-    if (!isWxEnv()) {
-      logger.log("非微信环境，跳过JS-SDK初始化");
-      return;
-    }
+    // if (!isWxEnv()) {
+    //   logger.log("非微信环境，跳过JS-SDK初始化");
+    //   return;
+    // }
 
     // 获取当前页面完整URL，不包含hash部分
     const currentUrl = url || window.location.href.split("#")[0];

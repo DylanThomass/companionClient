@@ -1,0 +1,152 @@
+/* Design Tokens - 设计令牌
+ * 这个文件定义了我们的核心设计变量，用于覆盖 Vant 默认主题
+ */
+
+:root {
+  /* Color Tokens - 色彩令牌 */
+  --c-primary: #14b8a6;
+  --c-primary-light: #2dd4bf;
+  --c-primary-dark: #0d9488;
+
+  --c-success: #22c55e;
+  --c-warning: #f59e0b;
+  --c-danger: #ef4444;
+  --c-info: #3b82f6;
+
+  /* Feature Colors - 特性色 */
+  --c-feature-service: #3b82f6;
+  --c-feature-service-light: #dbeafe;
+  --c-feature-order: #f43f5e;
+  --c-feature-order-light: #fee2e2;
+  --c-feature-favorite: #f59e0b;
+  --c-feature-favorite-light: #fef3c7;
+  --c-feature-system: #9333ea;
+  --c-feature-system-light: #f3e8ff;
+
+  --c-text-primary: #27272a;
+  --c-text-regular: #52525b;
+  --c-text-secondary: #71717a;
+  --c-text-placeholder: #a1a1aa;
+
+  --c-border: #e4e4e7;
+  --c-border-light: #f4f4f5;
+
+  --c-background: #ffffff;
+  --c-background-light: #fafafa;
+
+  /* Spacing Tokens - 间距令牌 */
+  --s-base: 4px;
+  --s-xs: calc(var(--s-base) * 2); /* 8px */
+  --s-sm: calc(var(--s-base) * 3); /* 12px */
+  --s-md: calc(var(--s-base) * 4); /* 16px */
+  --s-lg: calc(var(--s-base) * 6); /* 24px */
+  --s-xl: calc(var(--s-base) * 8); /* 32px */
+
+  /* Border Radius - 圆角令牌 */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-full: 9999px;
+
+  /* Typography - 字体令牌 */
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+
+  /* Animation - 动画令牌 */
+  --duration-fast: 0.2s;
+  --duration-base: 0.3s;
+  --duration-slow: 0.4s;
+
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Shadow - 阴影令牌 */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Vant Theme Override - Vant 主题覆盖 */
+:root {
+  /* 主题色 */
+  --van-primary-color: var(--c-primary);
+  --van-success-color: var(--c-success);
+  --van-danger-color: var(--c-danger);
+  --van-warning-color: var(--c-warning);
+
+  /* 按钮相关 */
+  --van-button-primary-background-color: var(--c-primary);
+  --van-button-primary-border-color: var(--c-primary);
+  --van-button-success-background-color: var(--c-success);
+  --van-button-success-border-color: var(--c-success);
+  --van-button-danger-background-color: var(--c-danger);
+  --van-button-danger-border-color: var(--c-danger);
+  --van-button-warning-background-color: var(--c-warning);
+  --van-button-warning-border-color: var(--c-warning);
+
+  /* 文字颜色 */
+  --van-text-color: var(--c-text-primary);
+  --van-text-color-2: var(--c-text-regular);
+  --van-text-color-3: var(--c-text-secondary);
+
+  /* 背景色 */
+  --van-background: var(--c-background);
+  --van-background-2: var(--c-background-light);
+
+  /* 边框颜色 */
+  --van-border-color: var(--c-border);
+
+  /* Radio 单选框 */
+  --van-radio-checked-icon-color: var(--c-primary);
+  --van-radio-label-color: var(--c-text-primary);
+
+  /* Checkbox 复选框 */
+  --van-checkbox-checked-icon-color: var(--c-primary);
+  --van-checkbox-label-color: var(--c-text-primary);
+
+  /* Field 输入框 */
+  --van-field-label-color: var(--c-text-regular);
+  --van-field-input-text-color: var(--c-text-primary);
+  --van-field-placeholder-text-color: var(--c-text-placeholder);
+
+  /* Cell 单元格 */
+  --van-cell-background: var(--c-background);
+  --van-cell-text-color: var(--c-text-primary);
+  --van-cell-label-color: var(--c-text-secondary);
+  --van-cell-border-color: var(--c-border);
+
+  /* NavBar 导航栏 */
+  --van-nav-bar-background: var(--c-background);
+  --van-nav-bar-title-text-color: var(--c-text-primary);
+  --van-nav-bar-icon-color: var(--c-text-regular);
+  --van-nav-bar-text-color: var(--c-text-regular);
+
+  /* Tag 标签 */
+  --van-tag-primary-color: var(--c-primary);
+  --van-tag-success-color: var(--c-success);
+  --van-tag-danger-color: var(--c-danger);
+  --van-tag-warning-color: var(--c-warning);
+
+  /* 动画相关 */
+  --van-animation-duration-base: var(--duration-base);
+  --van-animation-duration-fast: var(--duration-fast);
+
+  /* 圆角 */
+  --van-radius-sm: var(--r-sm);
+  --van-radius-md: var(--r-md);
+  --van-radius-lg: var(--r-lg);
+
+  /* 字体大小 */
+  --van-font-size-xs: var(--font-size-xs);
+  --van-font-size-sm: var(--font-size-sm);
+  --van-font-size-md: var(--font-size-base);
+  --van-font-size-lg: var(--font-size-lg);
+}

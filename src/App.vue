@@ -44,25 +44,24 @@ onMounted(async () => {
   console.log("App mounted");
 
   // 初始化微信配置
-  if (isWxEnv()) {
-    try {
-      await initWxConfig();
-    } catch (error) {
-      console.error("初始化微信配置失败:", error);
-    }
+
+  try {
+    await initWxConfig();
+  } catch (error) {
+    console.error("初始化微信配置失败:", error);
   }
 
-  // 如果已登录，获取用户信息
-  if (userStore.isLoggedIn) {
-    try {
-      await userStore.getUserInfo();
-      // 获取系统标签
-      await userStore.fetchSystemTags();
-      await userStore.fetchUserTags();
-    } catch (error) {
-      console.error("获取用户信息失败:", error);
-    }
-  }
+  // // 如果已登录，获取用户信息
+  // if (userStore.isLoggedIn) {
+  //   try {
+  //     await userStore.getUserInfo();
+  //     // 获取系统标签
+  //     await userStore.fetchSystemTags();
+  //     await userStore.fetchUserTags();
+  //   } catch (error) {
+  //     console.error("获取用户信息失败:", error);
+  //   }
+  // }
 
   appReady.value = true;
 });

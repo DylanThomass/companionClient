@@ -42,3 +42,137 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 }
+
+/* ======================================================
+ * 新系统组件 (New Design System Components)
+ * 基于设计令牌的组件，推荐在新开发中使用
+ * ====================================================== */
+@layer components {
+  /* 按钮系统 */
+
+  /* 基础按钮 - 定义所有按钮的共同属性 */
+  .button-base {
+    @apply h-12 rounded-lg font-medium transition-all duration-fast;
+  }
+
+  /* 主要按钮 - 使用主题色 */
+  .button-primary {
+    @apply button-base bg-primary text-white border-none;
+  }
+
+  /* 次要按钮 - 边框样式 */
+  .button-secondary {
+    @apply button-base bg-background border border-border text-text-secondary;
+  }
+
+  /* 成功按钮 */
+  .button-success {
+    @apply button-base bg-success-500 text-white border-none;
+  }
+
+  /* 警告按钮 */
+  .button-warning {
+    @apply button-base bg-warning-500 text-white border-none;
+  }
+
+  /* 危险按钮 */
+  .button-danger {
+    @apply button-base bg-danger-500 text-white border-none;
+  }
+
+  /* 微信登录按钮 */
+  .button-wechat {
+    @apply button-base bg-[#07C160] text-white border-none;
+  }
+
+  /* 卡片系统 */
+
+  /* 基础卡片 - 白色背景、圆角、轻微阴影 */
+  .ds-card {
+    @apply bg-background rounded-lg p-md shadow-sm;
+  }
+
+  /* 卡片标题 */
+  .ds-card-header {
+    @apply flex items-center text-text-primary font-medium mb-md;
+  }
+
+  /* 卡片图标容器 */
+  .ds-card-icon {
+    @apply w-6 h-6 rounded-md mr-xs flex items-center justify-center;
+    background-color: rgba(20, 184, 166, 0.1);
+  }
+
+  /* 表单元素 */
+
+  /* 自定义单选按钮组 */
+  .ds-radio-group {
+    @apply flex flex-wrap gap-sm;
+  }
+
+  /* 自定义单选按钮 */
+  .ds-radio {
+    @apply px-md py-xs rounded-full border border-border text-text-secondary text-sm cursor-pointer transition-all duration-fast;
+  }
+
+  /* 自定义单选按钮 - 选中状态 */
+  .ds-radio-active {
+    @apply border-primary text-primary;
+    background-color: rgba(20, 184, 166, 0.05);
+  }
+
+  /* 布局组件 */
+
+  /* 页面容器 - 全屏高度、背景色 */
+  .ds-page {
+    @apply min-h-screen bg-background-light;
+  }
+
+  /* 内容区域 - 带内边距 */
+  .ds-content {
+    @apply px-md py-md pb-24 space-y-md;
+  }
+
+  /* 固定底部 - 用于底部操作栏 */
+  .ds-fixed-bottom {
+    @apply fixed bottom-0 left-0 right-0 z-10 bg-background border-t border-border px-md py-sm;
+  }
+}
+
+/* ======================================================
+ * 工具类 (Utilities)
+ * 通用的工具类，可在新旧系统中使用
+ * ====================================================== */
+@layer utilities {
+  /* 文本截断 - 单行省略 */
+  .text-truncate {
+    @apply overflow-hidden whitespace-nowrap text-ellipsis;
+  }
+
+  /* 文本截断 - 多行省略 */
+  .text-truncate-2 {
+    @apply overflow-hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* 安全区域 - 适配全面屏设备 */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* 禁用点击 */
+  .no-click {
+    @apply pointer-events-none opacity-60;
+  }
+
+  /* 渐变背景 */
+  .gradient-primary {
+    background: linear-gradient(
+      to right,
+      var(--c-primary),
+      var(--c-primary-light)
+    );
+  }
+}

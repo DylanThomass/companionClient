@@ -1,0 +1,113 @@
+/* Vant 组件样式重置 */
+
+/* Button 按钮 */
+.van-button {
+  &--primary {
+    background-color: var(--van-button-primary-background-color) !important;
+    border-color: var(--van-button-primary-border-color) !important;
+  }
+
+  &--success {
+    background-color: var(--van-button-success-background-color) !important;
+    border-color: var(--van-button-success-border-color) !important;
+  }
+
+  &--warning {
+    background-color: var(--van-button-warning-background-color) !important;
+    border-color: var(--van-button-warning-border-color) !important;
+  }
+
+  &--danger {
+    background-color: var(--van-button-danger-background-color) !important;
+    border-color: var(--van-button-danger-border-color) !important;
+  }
+}
+
+/* Tag 标签 */
+.van-tag {
+  &--primary {
+    background-color: var(--van-tag-primary-color) !important;
+  }
+
+  &--success {
+    background-color: var(--van-tag-success-color) !important;
+  }
+
+  &--warning {
+    background-color: var(--van-tag-warning-color) !important;
+  }
+
+  &--danger {
+    background-color: var(--van-tag-danger-color) !important;
+  }
+}
+
+/* Radio 单选框 */
+.van-radio__icon {
+  .van-icon {
+    border-color: var(--van-radio-checked-icon-color) !important;
+  }
+
+  &--checked .van-icon {
+    background-color: var(--van-radio-checked-icon-color) !important;
+    border-color: var(--van-radio-checked-icon-color) !important;
+  }
+}
+
+/* Checkbox 复选框 */
+.van-checkbox__icon {
+  .van-icon {
+    border-color: var(--van-checkbox-checked-icon-color) !important;
+  }
+
+  &--checked .van-icon {
+    background-color: var(--van-checkbox-checked-icon-color) !important;
+    border-color: var(--van-checkbox-checked-icon-color) !important;
+  }
+}
+
+/* Field 输入框 */
+.van-field {
+  &__label {
+    color: var(--van-field-label-color) !important;
+  }
+
+  &__control {
+    color: var(--van-field-input-text-color) !important;
+
+    &::placeholder {
+      color: var(--van-field-placeholder-text-color) !important;
+    }
+  }
+}
+
+/* Cell 单元格 */
+.van-cell {
+  background: var(--van-cell-background) !important;
+
+  &__title {
+    color: var(--van-cell-text-color) !important;
+  }
+
+  &__label {
+    color: var(--van-cell-label-color) !important;
+  }
+
+  &::after {
+    border-color: var(--van-cell-border-color) !important;
+  }
+}
+
+/* NavBar 导航栏 */
+.van-nav-bar {
+  background-color: var(--van-nav-bar-background) !important;
+
+  &__title {
+    color: var(--van-nav-bar-title-text-color) !important;
+  }
+
+  &__text,
+  .van-icon {
+    color: var(--van-nav-bar-icon-color) !important;
+  }
+}

@@ -2,7 +2,12 @@ import { defineStore } from "pinia";
 import { wxLogin } from "@/api/wx";
 import { getUserInfo } from "@/api/user";
 import { getUserTagInfo } from "@/api/system";
-import { MOCK_SELLER_USER, MOCK_NORMAL_USER } from "@/mock";
+import {
+  MOCK_SELLER_USER,
+  MOCK_NORMAL_USER_INFO,
+  MOCK_NORMAL_USER_VIP_INFO,
+  MOCK_NORMAL_USER_OTHER_INFO,
+} from "@/mock";
 import { IMAGE_BASE_URL } from "@/utils/request";
 import { useAccountStore } from "./account";
 
@@ -21,6 +26,8 @@ export const useUserStore = defineStore("user", {
 
     // 用户信息
     userInfo: null,
+    userVipInfo: null,
+    userOtherInfo: null,
     role: 1, // 默认普通用户 (1: 普通用户, 2: 店员)
 
     // 标签相关
@@ -121,8 +128,11 @@ export const useUserStore = defineStore("user", {
         process.env.NODE_ENV === "development" &&
         process.env.VUE_APP_USE_MOCK === "true"
       ) {
-        const mockData = this.role === 2 ? MOCK_SELLER_USER : MOCK_NORMAL_USER;
+        const mockData =
+          this.role === 2 ? MOCK_SELLER_USER : MOCK_NORMAL_USER_INFO;
         this.userInfo = mockData;
+        this.userVipInfo = MOCK_NORMAL_USER_VIP_INFO;
+        this.userOtherInfo = MOCK_NORMAL_USER_OTHER_INFO;
         return mockData;
       }
 
@@ -151,10 +161,13 @@ export const useUserStore = defineStore("user", {
       try {
         const res = await getUserTagInfo({ userId: "" });
 
-        if (res && res.sysTagInfo) {
-          this.systemTags = res.sysTagInfo;
+        if (res.code === "0000") {
+          const { userTagInfo, sysTagInfo } = res;
+          this.systemTags = sysTagInfo;
+          this.userTags = userTagInfo;
         } else {
           this.systemTags = [];
+          this.userTags = [];
         }
 
         return res;
@@ -184,7 +197,7 @@ export const useUserStore = defineStore("user", {
 
         const res = await getUserTagInfo({ userId: this.userId });
 
-        if (res && res.userTagInfo) {
+        if (res?.userTagInfo) {
           // 将标签ID映射为完整的标签对象
           this.userTags = res.userTagInfo
             .map((tagId) => this.systemTags.find((tag) => tag.id === tagId))

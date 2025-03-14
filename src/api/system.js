@@ -2,7 +2,7 @@ import request from "@/utils/request";
 
 export const getUserTagInfo = (data) => {
   return request({
-    url: "/selectUserTagInfo",
+    url: "/api/selectUserTagInfo",
     method: "post",
     data,
   });

@@ -58,7 +58,7 @@ onMounted(async () => {
       await userStore.getUserInfo();
       // 获取系统标签
       await userStore.fetchSystemTags();
-      await userStore.fetchUserTags();
+      // await userStore.fetchUserTags();
     } catch (error) {
       console.error("获取用户信息失败:", error);
     }

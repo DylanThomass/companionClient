@@ -2,15 +2,34 @@ import request from "@/utils/request";
 
 /**
  * 获取用户信息
- * @param {string} openid - 用户 openid
  * @returns {Promise<Object>} 用户信息
  */
-export function getUserInfo(userId) {
-  console.log("获取用户信息，userId:", userId);
+export function getUserInfo() {
   return request({
     url: "/selectUser",
     method: "post",
-    data: { userId },
+  });
+}
+
+/**
+ * 获取vip信息
+ * @returns {Promise<Object>} vip信息
+ */
+export function getVipInfo() {
+  return request({
+    url: "/selectVipInfo",
+    method: "post",
+  });
+}
+
+/**
+ * 获取其他信息
+ * @returns {Promise<Object>} 其他信息
+ */
+export function getOtherInfo() {
+  return request({
+    url: "/selectOtherInfo",
+    method: "post",
   });
 }
 

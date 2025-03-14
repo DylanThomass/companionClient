@@ -49,33 +49,40 @@ export const MOCK_SELLER_USER = {
  * Mock 数据 - 普通用户
  * 用于模拟普通用户的基本信息、统计数据等
  */
-export const MOCK_NORMAL_USER = {
-  id: 1002,
-  openId: "o0Nbu7AX1_CpU3GSre5ShDs-NORM",
+export const MOCK_NORMAL_USER_INFO = {
+  id: 14,
   nickname: "DylanTest",
   avatarUrl: headImg2,
-  gender: 0, // 0-男 1-女
-  province: "北京",
+  phone: "13800138000",
+  status: "0",
   city: "北京",
-  role: 1, // 1-普通用户 2-店员
-  bio: "分享生活，温暖相伴",
-  birthday: "1998-06-15",
-  // 用户基础统计
-  stats: {
-    balance: 200.0,
-    coupons: 2,
-    signInDays: 3,
-    inviteCount: 1,
-    todaySignIn: false,
-  },
-  // 用户标签
-  tags: ["积极乐观", "善解人意"],
-  // 等级信息
-  level: {
-    exp: 850,
-    title: "新月初探",
-    visualEffect: "基础界面",
-  },
+  province: "北京",
+  country: "中国",
+  sex: 0,
+};
+
+/**
+ * Mock 数据 - 普通用户vip信息
+ */
+export const MOCK_NORMAL_USER_VIP_INFO = {
+  vipLevel: "1",
+  experience: 1000,
+  balance: 100,
+  couponCount: 10,
+};
+
+/**
+ * Mock 数据 - 普通用户其他信息
+ */
+export const MOCK_NORMAL_USER_OTHER_INFO = {
+  signature: "这是mock的个性签名",
+  currentIdentity: 0,
+  accumulatedExperience: 0.0,
+  consecutiveSignInDays: 10,
+  validInvitations: 10,
+  unlockedBenefits: "这是mock的解锁福利",
+  behaviorFingerprint: "这是mock的行为指纹",
+  constellation: "这是mock的星座",
 };
 
 /**

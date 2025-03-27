@@ -76,14 +76,18 @@
         <span
           class="px-2 py-0.5 bg-brand-100 text-brand-500 rounded-full text-xs font-medium"
         >
-          mock
+          {{ userVipInfo.levelName || "暂无等级" }}
         </span>
-        <span class="text-brand-500 font-medium"> mock/mock </span>
+        <span class="text-brand-500 font-medium">
+          {{ userVipInfo.experience }} / {{ userVipInfo.expNext }}
+        </span>
       </div>
       <div class="h-2 bg-surface-100 rounded-full overflow-hidden">
         <div
           class="h-full bg-gradient-to-r from-brand-400 to-brand-500 rounded-full transition-all duration-300"
-          :style="{ width: `100%` }"
+          :style="{
+            width: `${(userVipInfo.experience / userVipInfo.expNext) * 100}%`,
+          }"
         ></div>
       </div>
     </div>
@@ -96,7 +100,7 @@
         class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
       >
         <div class="text-lg font-semibold text-brand-500">
-          ¥ {{ userVipInfo.balance }}
+          ¥ {{ userOtherInfo.balance || 1000 }}
         </div>
         <div
           class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
@@ -108,7 +112,7 @@
         class="flex-1 text-center border-r border-surface-100 group cursor-pointer"
       >
         <div class="text-lg font-semibold text-brand-500">
-          {{ userVipInfo.couponCount }}
+          {{ userOtherInfo.couponCount || 10 }}
         </div>
         <div
           class="text-xs text-surface-500 group-hover:text-brand-500 transition-colors"
@@ -144,7 +148,7 @@
 
 <script setup>
 import { computed } from "vue";
-
+import { useUserStore } from "@/store/modules/user";
 const props = defineProps({
   userInfo: {
     type: Object,
@@ -154,17 +158,18 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
-
   userOtherInfo: {
     type: Object,
-    required: true,
+    default: () => ({}),
   },
 });
 
 defineEmits(["edit"]);
+const userStore = useUserStore();
 
 // 头像地址
 const avatarUrl = computed(() => props.userInfo?.avatarUrl);
+const userTags = computed(() => userStore.userSelectedTags);
 
 // 图片加载错误处理
 const onImageError = (error) => {

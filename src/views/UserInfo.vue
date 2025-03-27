@@ -110,37 +110,18 @@ const userStats = userStore.userOtherInfo;
 
 // ==================== 生命周期钩子 ====================
 onMounted(async () => {
-  console.log("userStore.userInfo", userStore.userInfo);
-  // if (!userStore.userId) {
-  //   console.log("用户未登录，跳过数据获取");
-  //   return;
-  // }
-
-  try {
-    // 1. 检查用户信息是否已加载
-    if (!userStore.userInfo) {
+  if (userStore.isLoggedIn) {
+    try {
       await userStore.getUserInfo();
+      await userStore.getUserVipInfo();
+      await userStore.getUserOtherInfo();
+    } catch (error) {
+      console.error("初始化用户数据失败:", error);
+      showToast({
+        message: "加载用户数据失败",
+        type: "fail",
+      });
     }
-
-    // 2. 检查系统标签是否已加载
-    if (userStore.systemTags.length === 0) {
-      // await userStore.fetchSystemTags();
-    }
-
-    // 3. 检查用户标签是否已加载
-    if (userStore.userTags.length === 0 && userStore.systemTags.length > 0) {
-      // await userStore.fetchUserTags();
-    }
-
-    // 4. 获取用户统计数据
-    // TODO: 实现用户统计数据获取
-    // await getUserStats();
-  } catch (error) {
-    console.error("初始化用户数据失败:", error);
-    showToast({
-      message: "加载用户数据失败",
-      type: "fail",
-    });
   }
 });
 

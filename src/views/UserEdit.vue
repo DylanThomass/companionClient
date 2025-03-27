@@ -140,7 +140,6 @@
               native-type="submit"
               :loading="submitting"
               class="btn-primary"
-              @click="onSubmit"
             >
               保存
             </van-button>
@@ -182,7 +181,7 @@ import { showToast } from "vant";
 import { areaList } from "@vant/area-data";
 import { base64ToFile } from "@/utils/file";
 import { chooseImage, getLocalImgUrl } from "@/utils/wx-sdk";
-import { updateUserInfo } from "@/api/user";
+import { updateUserInfo, updateUserAvatar } from "@/api/user";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -246,30 +245,17 @@ const handleEditAvatar = async () => {
       throw new Error("文件转换失败");
     }
 
-    const apiRequest = {
-      userId: userStore.userId,
-    };
     const newFormData = new FormData();
     newFormData.append("avatar", file);
-    newFormData.append("apiRequest", JSON.stringify(apiRequest));
 
-    const result = await updateUserInfo(newFormData);
+    const result = await updateUserAvatar(newFormData);
     console.log("上传结果:", result);
-
-    // // 更新头像显示
-    // if (result.avatarUrl) {
-    //   // 处理返回的相对路径，添加图片服务器基础地址
-    //   const fullAvatarUrl = result.avatarUrl.startsWith("http")
-    //     ? result.avatarUrl
-    //     : `${IMAGE_BASE_URL}${result.avatarUrl}`;
-    //   userStore.updateUserAvatar(fullAvatarUrl);
-    // }
 
     showToast({
       message: "头像更新成功",
       type: "success",
     });
-    router.back();
+    router.push("/user");
   } catch (error) {
     console.error("头像上传失败:", error);
     showToast({
@@ -316,26 +302,18 @@ const onBirthdayConfirm = (values) => {
 const onSubmit = async () => {
   submitting.value = true;
   try {
-    const apiRequest = {
+    const params = {
       ...formData.value,
-      userId: userStore.userId,
     };
-    const newFormData = new FormData();
-    newFormData.append("apiRequest", JSON.stringify(apiRequest));
-    newFormData.append("avatar", formData.value.avatar);
-    const result = await updateUserInfo(newFormData);
+    const result = await updateUserInfo(params);
     console.log("更新用户信息结果:", result);
-    // TODO: 实现用户信息更新
-    // 1. 调用后端更新接口
-    // 2. 更新本地 store 数据
-    // const data = await updateUserInfo({
-    //   sex: formData.value.sex,
-    // });
+
     showToast({
       message: "保存成功",
       type: "success",
       icon: "success",
     });
+    router.push("/user");
   } catch (error) {
     console.error("更新用户信息失败:", error);
     showToast({

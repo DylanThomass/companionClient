@@ -33,10 +33,7 @@ onMounted(async () => {
 
     console.log("data", data);
 
-    // // 保存用户信息和 token
-    // userStore.setUserInfo(data.userInfo);
     console.log("data.token", data.token);
-    userStore.setToken(data.token);
 
     // 跳转到原来的页面或首页
     const redirect = "/";

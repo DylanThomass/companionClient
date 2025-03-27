@@ -46,46 +46,6 @@ export const MOCK_SELLER_USER = {
 };
 
 /**
- * Mock 数据 - 普通用户
- * 用于模拟普通用户的基本信息、统计数据等
- */
-export const MOCK_NORMAL_USER_INFO = {
-  id: 14,
-  nickname: "DylanTest",
-  avatarUrl: headImg2,
-  phone: "13800138000",
-  status: "0",
-  city: "北京",
-  province: "北京",
-  country: "中国",
-  sex: 0,
-};
-
-/**
- * Mock 数据 - 普通用户vip信息
- */
-export const MOCK_NORMAL_USER_VIP_INFO = {
-  vipLevel: "1",
-  experience: 1000,
-  balance: 100,
-  couponCount: 10,
-};
-
-/**
- * Mock 数据 - 普通用户其他信息
- */
-export const MOCK_NORMAL_USER_OTHER_INFO = {
-  signature: "这是mock的个性签名",
-  currentIdentity: 0,
-  accumulatedExperience: 0.0,
-  consecutiveSignInDays: 10,
-  validInvitations: 10,
-  unlockedBenefits: "这是mock的解锁福利",
-  behaviorFingerprint: "这是mock的行为指纹",
-  constellation: "这是mock的星座",
-};
-
-/**
  * Mock 数据 - 店员列表
  * 用于展示在大厅页面的店员卡片列表
  */
@@ -276,3 +236,101 @@ export const calculateUserLevel = (exp) => {
     ),
   };
 };
+
+export const MOCK_USER_VIP_INFO = {
+  vipLevel: 1,
+  experience: 1000,
+  expNext: 1500,
+};
+
+// 用户相关 mock 数据
+export const MOCK_USER = {
+  id: 7,
+  nickname: "Dylan",
+  signature: null,
+  avatarUrl:
+    "https://avatar-12.oss-cn-shanghai.aliyuncs.com/26d3e6fa-c264-41_image.png",
+  phone: null,
+  status: "0",
+  city: "天津市",
+  province: "天津市",
+  country: "",
+  sex: 0,
+};
+
+export const MOCK_SELLER = {
+  ...MOCK_USER,
+  role: 2,
+  nickname: "测试店员",
+  tags: ["专业", "热情"],
+  MOCK_USER_VIP_INFO,
+};
+
+export const MOCK_USER_OTHER_INFO = {
+  signature: "这是mock的个性签名",
+  currentIdentity: 0,
+  accumulatedExperience: 0.0,
+  consecutiveSignInDays: 8,
+  validInvitations: 6,
+  unlockedBenefits: "这是mock的解锁福利",
+  behaviorFingerprint: "这是mock的行为指纹",
+  constellation: "这是mock的星座",
+  balance: 999,
+  couponCount: 10,
+};
+
+export const MOCK_SYSTEM_TAGS = [
+  { id: 1, tag: "温柔" },
+  { id: 2, tag: "耐心" },
+  { id: 3, tag: "专业" },
+  { id: 4, tag: "热情" },
+  { id: 5, tag: "幽默" },
+  { id: 6, tag: "细心" },
+];
+
+export const MOCK_USER_TAGS = [1, 2]; // 用户已选择的标签 ID
+
+// 店员相关 mock 数据
+export const MOCK_SELLER_LIST = {
+  total: 5,
+  list: [
+    {
+      id: 10002,
+      name: "测试店员1",
+      avatar: "https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg",
+      rating: 4.8,
+      praiseRate: 98,
+      tags: ["专业", "热情"],
+      online: true,
+    },
+    // ... 更多店员数据
+  ],
+};
+
+export const MOCK_SELLER_DETAIL = {
+  id: 10002,
+  name: "测试店员1",
+  avatar: "https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg",
+  rating: 4.8,
+  praiseRate: 98,
+  tags: ["专业", "热情"],
+  online: true,
+  bio: "专业心理咨询师，擅长情感咨询",
+  orderCount: 128,
+  commentCount: 256,
+};
+
+// 用户统计数据 mock
+export const MOCK_USER_STATS = {
+  balance: 888.88,
+  coupons: 5,
+  inviteCount: 3,
+  todaySignIn: false,
+};
+
+// 统一的 mock 响应格式
+export const createMockResponse = (data) => data;
+
+// 模拟延迟
+export const mockDelay = (ms = 500) =>
+  new Promise((resolve) => setTimeout(resolve, ms));

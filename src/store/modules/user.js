@@ -1,13 +1,8 @@
 import { defineStore } from "pinia";
 import { wxLogin } from "@/api/wx";
-import { getUserInfo } from "@/api/user";
+import { getUserInfo, getVipInfo, getOtherInfo } from "@/api/user";
 import { getUserTagInfo } from "@/api/system";
-import {
-  MOCK_SELLER_USER,
-  MOCK_NORMAL_USER_INFO,
-  MOCK_NORMAL_USER_VIP_INFO,
-  MOCK_NORMAL_USER_OTHER_INFO,
-} from "@/mock";
+import { MOCK_SELLER_USER } from "@/mock";
 import { IMAGE_BASE_URL } from "@/utils/request";
 import { useAccountStore } from "./account";
 
@@ -39,6 +34,11 @@ export const useUserStore = defineStore("user", {
    * 计算属性
    */
   getters: {
+    // 用户选择的标签
+    userSelectedTags: (state) => {
+      return state.systemTags.filter((tag) => state.userTags.includes(tag.id));
+    },
+
     // 是否是店员
     isSeller: (state) => state.role === 2,
 
@@ -60,23 +60,6 @@ export const useUserStore = defineStore("user", {
    */
   actions: {
     /**
-     * 设置用户信息（开发环境使用）
-     * @param {Object} userInfo - 用户信息对象
-     */
-    setUserInfo(userInfo) {
-      this.userInfo = userInfo;
-      this.role = userInfo.role;
-    },
-
-    /**
-     * 设置认证令牌
-     * @param {string} token - 认证令牌
-     */
-    setToken(token) {
-      this.token = token;
-    },
-
-    /**
      * 微信登录
      * @param {string} code - 微信授权码
      * @returns {Promise<Object>} 登录结果
@@ -87,10 +70,6 @@ export const useUserStore = defineStore("user", {
         this.token = data.token;
         this.openid = data.accessToken;
         this.userId = data.userId;
-
-        // 登录成功后初始化账户余额
-        const accountStore = useAccountStore();
-        await accountStore.fetchBalance();
 
         return data;
       } catch (error) {
@@ -120,30 +99,11 @@ export const useUserStore = defineStore("user", {
 
     /**
      * 获取用户信息
-     * @returns {Promise<Object|null>} 用户信息
+     * @returns {Object} 用户信息
      */
     async getUserInfo() {
-      // 开发环境使用 mock 数据
-      if (
-        process.env.NODE_ENV === "development" &&
-        process.env.VUE_APP_USE_MOCK === "true"
-      ) {
-        const mockData =
-          this.role === 2 ? MOCK_SELLER_USER : MOCK_NORMAL_USER_INFO;
-        this.userInfo = mockData;
-        this.userVipInfo = MOCK_NORMAL_USER_VIP_INFO;
-        this.userOtherInfo = MOCK_NORMAL_USER_OTHER_INFO;
-        return mockData;
-      }
-
-      // 检查 userId 是否存在
-      if (!this.userId) {
-        console.warn("尝试获取用户信息但 userId 为空");
-        return null;
-      }
-
       try {
-        const data = await getUserInfo(this.userId);
+        const data = await getUserInfo();
         this.userInfo = data;
         this.role = data.role;
         return data;
@@ -154,62 +114,31 @@ export const useUserStore = defineStore("user", {
     },
 
     /**
-     * 获取系统标签列表
-     * @returns {Promise<Object|null>} 标签信息
+     * 获取用户vip信息
+     * @returns {Object} 用户vip信息
      */
-    async fetchSystemTags() {
+    async getUserVipInfo() {
       try {
-        const res = await getUserTagInfo({ userId: "" });
-
-        if (res.code === "0000") {
-          const { userTagInfo, sysTagInfo } = res;
-          this.systemTags = sysTagInfo;
-          this.userTags = userTagInfo;
-        } else {
-          this.systemTags = [];
-          this.userTags = [];
-        }
-
-        return res;
+        const data = await getVipInfo();
+        this.userVipInfo = data;
+        return data;
       } catch (error) {
-        console.error("获取系统标签失败:", error);
-        this.systemTags = [];
+        console.error("获取用户vip信息失败:", error);
         throw error;
       }
     },
 
     /**
-     * 获取用户已选标签
-     * @returns {Promise<Array|null>} 用户标签
+     * 获取用户其他信息
+     * @returns {Object} 用户其他信息
      */
-    async fetchUserTags() {
-      // 检查 userId 是否存在
-      if (!this.userId) {
-        console.warn("尝试获取用户标签但 userId 为空");
-        return null;
-      }
-
+    async getUserOtherInfo() {
       try {
-        // 确保系统标签已加载
-        if (this.systemTags.length === 0) {
-          await this.fetchSystemTags();
-        }
-
-        const res = await getUserTagInfo({ userId: this.userId });
-
-        if (res?.userTagInfo) {
-          // 将标签ID映射为完整的标签对象
-          this.userTags = res.userTagInfo
-            .map((tagId) => this.systemTags.find((tag) => tag.id === tagId))
-            .filter((tag) => tag); // 过滤掉未找到的标签
-        } else {
-          this.userTags = [];
-        }
-
-        return this.userTags;
+        const data = await getOtherInfo();
+        this.userOtherInfo = data;
+        return data;
       } catch (error) {
-        console.error("获取用户标签失败:", error);
-        this.userTags = [];
+        console.error("获取用户其他信息失败:", error);
         throw error;
       }
     },

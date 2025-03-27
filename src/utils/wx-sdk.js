@@ -265,7 +265,7 @@ export async function initWxConfig(
         clearConfigCache(currentUrl);
       }
     }
-
+    console.log("从服务器获取微信配置:", currentUrl);
     // 从服务器获取新的微信配置
     logger.log("从服务器获取微信配置...");
     const data = await getWxConfig(currentUrl);

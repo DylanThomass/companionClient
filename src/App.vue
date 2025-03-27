@@ -20,13 +20,14 @@ import { useRouter, useRoute } from "vue-router";
 import { initWxConfig, isWxEnv } from "@/utils/wx-sdk";
 import { showToast } from "vant";
 import { useUserStore } from "@/store/modules/user";
-
+import { useSystemStore } from "@/store/modules/system";
 // 应用配置
 const appTitle = process.env.VUE_APP_TITLE || "Companion";
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
+const systemStore = useSystemStore();
 const appReady = ref(false);
 
 // 提供全局状态
@@ -51,14 +52,13 @@ onMounted(async () => {
       console.error("初始化微信配置失败:", error);
     }
   }
+  await systemStore.fetchSystemTags();
 
   // 如果已登录，获取用户信息
   if (userStore.isLoggedIn) {
     try {
       await userStore.getUserInfo();
-      // 获取系统标签
-      await userStore.fetchSystemTags();
-      // await userStore.fetchUserTags();
+      await systemStore.fetchUserTags();
     } catch (error) {
       console.error("获取用户信息失败:", error);
     }

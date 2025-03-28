@@ -28,11 +28,11 @@ onMounted(async () => {
       throw new Error("未获取到授权码");
     }
 
+    const params = {
+      code,
+    };
     // 调用微信登录接口
-    const data = await userStore.login(code);
-
-    console.log("data", data);
-
+    const data = await userStore.login(params);
     console.log("data.token", data.token);
 
     // 跳转到原来的页面或首页

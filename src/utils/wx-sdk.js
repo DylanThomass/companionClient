@@ -268,7 +268,10 @@ export async function initWxConfig(
     console.log("从服务器获取微信配置:", currentUrl);
     // 从服务器获取新的微信配置
     logger.log("从服务器获取微信配置...");
-    const data = await getWxConfig(currentUrl);
+    const params = {
+      url: currentUrl,
+    };
+    const data = await getWxConfig(params);
 
     if (!data?.appId) {
       throw new Error("获取微信配置失败，返回数据无效");

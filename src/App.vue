@@ -18,7 +18,6 @@
 import { ref, onMounted, provide } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { initWxConfig, isWxEnv } from "@/utils/wx-sdk";
-import { showToast } from "vant";
 import { useUserStore } from "@/store/modules/user";
 import { useSystemStore } from "@/store/modules/system";
 // 应用配置
@@ -52,12 +51,12 @@ onMounted(async () => {
       console.error("初始化微信配置失败:", error);
     }
   }
-  await systemStore.fetchSystemTags();
 
   // 如果已登录，获取用户信息
   if (userStore.isLoggedIn) {
     try {
       await userStore.getUserInfo();
+      await systemStore.fetchSystemTags();
       await systemStore.fetchUserTags();
     } catch (error) {
       console.error("获取用户信息失败:", error);

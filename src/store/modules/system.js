@@ -37,12 +37,7 @@ export const useSystemStore = defineStore("system", {
     async fetchSystemTags() {
       try {
         const res = await getSystemTagInfo();
-        if (res.code === "0000") {
-          const { sysTagInfo } = res.data;
-          this.systemTags = sysTagInfo;
-        } else {
-          this.systemTags = [];
-        }
+        this.systemTags = res;
       } catch (error) {
         console.error("获取系统标签失败:", error);
         this.systemTags = [];
@@ -55,13 +50,8 @@ export const useSystemStore = defineStore("system", {
      */
     async fetchUserTags() {
       try {
-        const res = await getUserTagInfo({});
-        if (res.code === "0000") {
-          const { userTagInfo = [] } = res.data;
-          this.userTags = userTagInfo;
-        } else {
-          this.userTags = [];
-        }
+        const res = await getUserTagInfo();
+        this.userTags = res.userTagInfo;
       } catch (error) {
         console.error("获取用户标签失败:", error);
         this.userTags = [];
